@@ -66,16 +66,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("MYSQL_DB", "water_erp_db"),
-        "USER": os.getenv("MYSQL_USER", "root"),
-        "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-        "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"),
-        "PORT": os.getenv("MYSQL_PORT", "3306"),
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'jengatest',
+        'USER': 'jengatest',
+        'PASSWORD': 'Ntabe@2025',
+        'HOST': 'jengatest.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
     }
 }
 AUTH_PASSWORD_VALIDATORS = [
