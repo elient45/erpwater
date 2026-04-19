@@ -75,7 +75,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME", "jengatest"),
+        "NAME": os.getenv("DB_NAME", "jengatest$water_erp"),
         "USER": os.getenv("DB_USER", "jengatest"),
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "jengatest.mysql.pythonanywhere-services.com"),
