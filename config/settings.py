@@ -7,9 +7,16 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")
+
 DEBUG = False
 
-ALLOWED_HOSTS = ["*","jengatest.pythonanywhere.com"]
+ALLOWED_HOSTS = [
+    "jengatest.pythonanywhere.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://jengatest.pythonanywhere.com",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -66,15 +73,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'jengatest',
-        'USER': 'jengatest',
-        'PASSWORD': 'Ntabe@2025',
-        'HOST': 'jengatest.mysql.pythonanywhere-services.com',
-        'PORT': '3306',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME", "jengatest"),
+        "USER": os.getenv("DB_USER", "jengatest"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", "jengatest.mysql.pythonanywhere-services.com"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -87,14 +95,14 @@ TIME_ZONE = "Africa/Kinshasa"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Décommente seulement si tu as vraiment un dossier BASE_DIR / "static"
+# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "accounts:login"
