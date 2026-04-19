@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Facturation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">{{ title }}</h1>
+      <p class="text-muted mb-0">Cette action est reservee aux administrateurs et conserve une trace obligatoire.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'sales:invoice_detail' invoice.pk %}" class="btn btn-outline-secondary rounded-3 px-4">
+        Retour
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="section-title mb-3">Controle avant annulation</div>
+          <div class="mb-2"><strong>Facture :</strong> {{ invoice.number }}</div>
+          <div class="mb-2"><strong>Client :</strong> {{ invoice.customer.name }}</div>
+          <div class="mb-2"><strong>Statut :</strong> {{ invoice.get_status_display }}</div>
+          <div class="mb-2"><strong>Depot source :</strong> {{ invoice.source_depot.name|default:"-" }}</div>
+          <div class="mb-2"><strong>Total TTC :</strong> {{ invoice.total|intcomma }} FC</div>
+          <div class="mb-0"><strong>Montant paye :</strong> {{ invoice.paid_amount|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="alert alert-warning">
+            L'annulation est reservee aux cas controles. Si la facture est validee sans paiement ni livraison finale, le stock sera reintegre automatiquement.
+          </div>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">{{ form.cancellation_reason.label }}</label>
+              {{ form.cancellation_reason }}
+              {{ form.cancellation_reason.errors }}
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-danger rounded-3 px-4">
+                Confirmer l'annulation
+              </button>
+              <a href="{% url 'sales:invoice_detail' invoice.pk %}" class="btn btn-outline-secondary rounded-3 px-4">
+                Annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

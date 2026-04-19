@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Dépenses{% endblock %}
+{% block page_heading %}Dépenses{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des dépenses</h1>
+      <p class="text-muted mb-0">Suivez les sorties financières par catégorie, compte et utilisateur.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'expenses:expense_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouvelle dépense
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total dépenses : <strong>{{ expenses|length }}</strong>
+        </div>
+        <div>
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table expense-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Catégorie</th>
+              <th>Compte</th>
+              <th>Description</th>
+              <th class="text-end">Montant</th>
+              <th>Créé par</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>
+                <div>{{ e.spent_at|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ e.spent_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                <div class="fw-semibold">{{ e.category.name }}</div>
+              </td>
+              <td>{{ e.account.name }}</td>
+              <td>{{ e.description|default:"-" }}</td>
+              <td class="text-end fw-semibold">{{ e.amount|intcomma }} FC</td>
+              <td>{{ e.created_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">Aucune dépense enregistrée.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

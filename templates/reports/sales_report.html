@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Rapport ventes{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport des ventes</h1>
+      <p class="text-muted mb-0">Analyse des factures, des clients les plus actifs et des produits les plus vendus.</p>
+    </div>
+  </div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card report-kpi-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="report-kpi-label">Ventes HT</div>
+        <div class="report-kpi-value">{{ totals.total_sales_ht|intcomma }} FC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card report-kpi-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="report-kpi-label">TVA collectée</div>
+        <div class="report-kpi-value">{{ totals.total_tax|intcomma }} FC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card report-kpi-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="report-kpi-label">Ventes TTC</div>
+        <div class="report-kpi-value">{{ totals.total_sales_ttc|intcomma }} FC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card report-kpi-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="report-kpi-label">Total payé</div>
+        <div class="report-kpi-value">{{ totals.total_paid|intcomma }} FC</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Factures</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th class="text-end">HT</th>
+              <th class="text-end">TVA</th>
+              <th class="text-end">TTC</th>
+              <th class="text-end">Payé</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in invoices %}
+            <tr>
+              <td class="fw-semibold">{{ invoice.number }}</td>
+              <td>{{ invoice.customer.name }}</td>
+              <td>
+                <div>{{ invoice.issue_date|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ invoice.issue_date|date:"H:i" }}</div>
+              </td>
+              <td>
+                {% if invoice.status == "DRAFT" %}
+                  <span class="badge rounded-pill text-bg-secondary">Brouillon</span>
+                {% elif invoice.status == "VALIDATED" %}
+                  <span class="badge rounded-pill text-bg-primary">Validée</span>
+                {% elif invoice.status == "PARTIAL" %}
+                  <span class="badge rounded-pill text-bg-warning">Paiement partiel</span>
+                {% elif invoice.status == "PAID" %}
+                  <span class="badge rounded-pill text-bg-success">Payée</span>
+                {% elif invoice.status == "CANCELLED" %}
+                  <span class="badge rounded-pill text-bg-danger">Annulée</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-light">{{ invoice.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end fw-semibold">{{ invoice.total_before_tax|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.tax_amount|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.total|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.paid_amount|intcomma }} FC</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">Aucune facture.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Top clients</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th class="text-center">Factures</th>
+                 <th class="text-end">HT</th>
+                  <th class="text-end">TVA</th>
+                  <th class="text-end">TTC</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in top_clients %}
+                <tr>
+                  <td class="fw-semibold">{{ c.customer__name }}</td>
+                  <td class="text-center">{{ c.invoice_count }}</td>
+                  <td class="text-end">{{ c.total_before_tax|intcomma }} FC</td>
+                  <td class="text-end">{{ c.total_tax|intcomma }} FC</td>
+                  <td class="text-end">{{ c.total_amount|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Top produits</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th class="text-center">Qté</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in top_products %}
+                <tr>
+                  <td class="fw-semibold">{{ p.product__name }}</td>
+                  <td class="text-center">{{ p.total_qty }}</td>
+                  <td class="text-end">{{ p.total_amount|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

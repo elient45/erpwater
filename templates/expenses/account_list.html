@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Comptes financiers{% endblock %}
+{% block page_heading %}Comptes financiers{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des comptes financiers</h1>
+      <p class="text-muted mb-0">Gérez les comptes utilisés pour les paiements et les dépenses.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'expenses:account_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouveau compte
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total comptes : <strong>{{ accounts|length }}</strong>
+        </div>
+        <div>
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table account-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th class="text-end">Solde</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for acc in accounts %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ acc.name }}</div>
+              </td>
+              <td>{{ acc.get_account_type_display }}</td>
+              <td class="text-end fw-semibold">{{ acc.balance }} FC</td>
+              <td>
+                {% if acc.is_active %}
+                  <span class="badge rounded-pill text-bg-success">Actif</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-secondary">Inactif</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">Aucun compte financier enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Achats{% endblock %}
+{% block page_heading %}Achats{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Bons d’achat</h1>
+      <p class="text-muted mb-0">Suivi des commandes, réceptions et dettes fournisseurs.</p>
+    </div>
+    <a href="{% url 'inventory:purchase_create' %}" class="btn btn-dark rounded-3">Nouvel achat</a>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Fournisseur</th>
+            <th>Dépôt</th>
+            <th>Date</th>
+            <th class="text-end">Total</th>
+            <th>Statut achat</th>
+            <th>Dette fournisseur</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in purchases %}
+          <tr>
+            <td class="fw-semibold">{{ p.number }}</td>
+            <td>{{ p.supplier.name }}</td>
+            <td>{{ p.depot_name }}</td>
+            <td>{{ p.ordered_at|date:"d/m/Y H:i" }}</td>
+            <td class="text-end">{{ p.total|intcomma }} FC</td>
+            <td>
+              {% if p.status == "DRAFT" %}
+                <span class="badge rounded-pill text-bg-secondary">Brouillon</span>
+              {% elif p.status == "ORDERED" %}
+                <span class="badge rounded-pill text-bg-primary">Commandé</span>
+              {% elif p.status == "RECEIVED" %}
+                <span class="badge rounded-pill text-bg-success">Réceptionné</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-danger">Annulé</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if p.supplier_payable %}
+                {% if p.supplier_payable.status == "PAID" %}
+                  <span class="badge rounded-pill text-bg-success">Payée</span>
+                {% elif p.supplier_payable.status == "PARTIAL" %}
+                  <span class="badge rounded-pill text-bg-warning">Partielle</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-dark">Ouverte</span>
+                {% endif %}
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{% url 'inventory:purchase_detail' p.pk %}" class="btn btn-sm btn-outline-dark rounded-3">Voir</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">Aucun achat enregistré.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

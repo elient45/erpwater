@@ -1,0 +1,349 @@
+j'ai supprimer les colonnes qui es=xiste deja regarde maintenant on vas passer a l'etape 3 l'etape 2 on la fera a la fin je vais te mettre dnasn le bain pour que tu comprennes d'accord ??donc regarde ma proposition !donc regarde bien  ! tu me demanderas les fichiers necessaire vue que tu connais tout ma structure si tu vas creer d'autre fichier bon d'accord tu me diras ! pour les audit logs ca se feras a la fin comme je te le dit ! donc on fait d'abord l'essentitell ! en tout cas tu dois tenir compte de ce que j'ai deja 
+
+ma proposition est là :::::: il faut clarifier le cycle métier de bout en bout, sinon on empile des écrans sans verrouiller la réalité opérationnelle.
+
+Le bon objectif pour ton logiciel, c’est de passer de:
+
+“on enregistre des opérations”
+à
+“on exécute un processus métier contrôlé, traçable, réversible sous conditions, et clôturable”.
+Je te propose donc une solution en deux couches :
+
+une logique métier cible, claire et exploitable;
+un plan de modification progressif pour l’implémenter sans casser le projet.
+1. Vente et Stock
+Le vrai problème aujourd’hui, ce n’est pas juste le dépôt par défaut. Le vrai problème, c’est que la facture porte trop de responsabilités à elle seule.
+
+Dans un logiciel métier propre, une vente devrait suivre ce genre de logique :
+
+Commande client
+Le client demande un produit, une quantité, un prix, une date.
+Aucun stock réel ne bouge encore.
+
+Réservation ou préparation
+On choisit d’où la marchandise va sortir :
+
+dépôt principal,
+stock vendeur,
+camion/tournée,
+dépôt secondaire.
+Livraison / sortie stock
+Le stock sort du lieu choisi.
+C’est ici qu’on sait physiquement ce qui a quitté le stock.
+
+Facturation
+On formalise le montant à payer.
+Selon ton métier, la facture peut être créée :
+
+avant la livraison,
+au moment de la livraison,
+après la livraison.
+Encaissement / recouvrement
+Le client paie totalement ou partiellement.
+
+Donc ma recommandation métier:
+
+la facture ne doit pas deviner le dépôt source;
+le dépôt source doit être explicitement choisi dans le flux de vente;
+si tu veux rester simple, ajoute d’abord un champ source_depot sur Invoice;
+si tu veux faire mieux, crée un objet SalesOrder ou DeliveryOrder qui porte la logistique, et la facture reste le document financier.
+Solution simple et réaliste pour ton projet actuel
+Commencer par :
+
+ajouter sur Invoice un depot_source nullable au début, puis obligatoire à validation;
+lors de validate_invoice, utiliser ce dépôt, pas Depot.objects.filter(is_active=True).first();
+plus tard, si besoin, introduire seller_stock ou route_stock.
+Règle métier
+
+Une facture validée sans dépôt source: interdit.
+Une facture validée avec stock insuffisant dans ce dépôt: interdit.
+Une facture déjà liée à un mouvement de stock: ne peut pas être revalidée.
+2. Rapports et Pilotage
+Tu as bien vu le point sensible: un ERP devient dangereux quand il donne des chiffres “beaux” mais faux.
+
+Il faut distinguer 4 notions qui ne doivent jamais être mélangées :
+
+Commercial
+CA HT, TVA, CA TTC, remises, quantités vendues.
+Trésorerie
+encaissements clients, décaissements, soldes caisse/banque.
+Stock
+quantités physiques, entrées/sorties, valorisation.
+Résultat
+marge, charges, rentabilité.
+Dans ton cas :
+
+subtotal ne doit pas être présenté comme HT si le vrai HT métier est total_before_tax;
+la “marge brute” ne peut pas être ventes TTC - achats - dépenses de manière naïve;
+la TVA ne doit jamais être traitée comme du revenu réel.
+Solution métier
+Séparer les rapports par nature :
+
+Rapport commercial
+ventes HT
+TVA
+TTC
+quantités vendues
+top clients / produits
+Rapport encaissements
+paiements reçus
+impayés
+retards
+Rapport achats
+achats reçus
+dettes fournisseurs
+paiements fournisseurs
+Rapport stock
+stock théorique
+stock physique
+écarts
+Rapport résultat simplifié
+ventes HT
+coût des ventes
+marge brute
+charges d’exploitation
+résultat estimatif
+Très important
+La marge brute correcte doit idéalement reposer sur :
+
+ventes HT
+moins coût des produits vendus
+et non sur le total TTC.
+Or chez toi, le coût de vente n’est pas encore vraiment structuré. Donc tant que le coût de revient n’est pas fiable, il vaut mieux :
+
+supprimer l’indicateur “marge brute” des écrans de pilotage,
+ou
+le renommer indicateur estimatif non comptable.
+3. Cycle d’approvisionnement
+Aujourd’hui tu as :
+
+achat,
+réception,
+dépense.
+Mais il manque la dette fournisseur. Or dans la vraie vie, on peut :
+
+commander aujourd’hui,
+recevoir demain,
+payer dans 15 jours.
+Donc il faut séparer :
+
+engagement
+réception
+paiement
+Cycle recommandé
+
+PurchaseOrder
+Commande fournisseur.
+Pas de stock, pas de trésorerie.
+
+GoodsReceipt
+Réception des intrants.
+Le stock augmente.
+La dette fournisseur naît ici si non payé immédiatement.
+
+SupplierInvoice ou facture fournisseur
+Document comptable du fournisseur.
+Peut être fusionné avec la réception dans une version simple.
+
+SupplierPayment
+Paiement au fournisseur.
+La dette diminue.
+
+Version simplifiée pour ton projet
+Tu n’es pas obligé de créer 4 modèles d’un coup. Tu peux faire une version pragmatique :
+
+Purchase = document d’achat/commande
+à la réception, créer une SupplierPayable si achat non payé
+Expense ne doit plus être la seule manière d’exprimer un achat
+le paiement fournisseur doit être une opération dédiée, pas juste une “dépense libre”
+Règle métier
+
+Réception impacte le stock
+Paiement fournisseur impacte la trésorerie
+Dette fournisseur relie les deux
+Ça te donnera enfin :
+
+ce que tu dois aux fournisseurs,
+ce que tu as déjà reçu,
+ce que tu as déjà payé.
+4. Cycle client
+Même logique côté client. Aujourd’hui tu as surtout la facture, la livraison, le paiement. Il manque les étapes amont et aval.
+
+Cycle recommandé
+
+Quotation ou devis
+SalesOrder ou commande client
+Delivery
+Invoice
+Payment / Collection
+CreditNote / Return
+Pourquoi c’est important
+Parce qu’une facture ne doit pas être à la fois :
+
+devis,
+commande,
+bon de sortie,
+preuve de livraison,
+créance client.
+C’est trop pour un seul objet.
+
+Version simple pour implémenter progressivement
+
+conserver Invoice
+ajouter un objet SalesOrder
+la livraison et la facture dérivent de la commande
+plus tard, ajouter CreditNote pour les annulations partielles / retours
+5. Annulation de facture avec permissions
+Oui, tu as totalement raison: il faut un système d’annulation, mais pas libre.
+
+Il faut distinguer 3 choses :
+
+Supprimer
+effacer techniquement un document
+Annuler
+garder la trace mais rendre l’opération sans effet métier futur
+Contrepasser
+créer une écriture inverse ou un mouvement inverse
+Dans un ERP sérieux, on évite la suppression après validation. On préfère annuler.
+
+Règle métier recommandée
+
+Une facture DRAFT peut être supprimée ou modifiée.
+Une facture VALIDATED ne peut plus être supprimée.
+Une facture validée peut être CANCELLED seulement par un rôle autorisé.
+L’annulation doit :
+demander un motif obligatoire,
+enregistrer qui annule,
+enregistrer quand,
+gérer les paiements existants,
+gérer le retour stock si la marchandise n’a pas été consommée côté client.
+Deux cas métier
+
+Facture validée sans paiement
+annulation autorisée avec mouvement inverse de stock si nécessaire
+Facture validée avec paiement
+annulation interdite tant que remboursement ou avoir non traité
+ou bien annulation automatique avec création d’un avoir / remboursement
+Permissions
+Je te conseille des rôles métier comme :
+
+ADMIN
+MANAGER
+SALES_AGENT
+CASHIER
+STOREKEEPER
+ACCOUNTANT
+Exemple :
+
+SALES_AGENT: crée devis/commandes/factures brouillon
+STOREKEEPER: valide sorties stock
+CASHIER: enregistre paiements
+MANAGER: valide facture, autorise annulation
+ACCOUNTANT: clôture période, valide ajustements financiers
+ADMIN: supervision globale
+6. Traçabilité active
+Là, ton intuition est très bonne. Il ne faut pas juste “logguer les changements”, il faut tracer les événements métier.
+
+Je te conseille deux niveaux :
+
+Niveau 1: audit technique
+Qui a modifié tel champ, avant/après, quand.
+C’est ce que ton AuditLog essaie déjà de faire.
+
+Niveau 2: journal métier
+Qui a fait quelle action métier.
+Exemples :
+
+facture validée,
+paiement enregistré,
+achat réceptionné,
+stock ajusté,
+facture annulée.
+Le journal métier est souvent plus utile au quotidien que l’audit de champs.
+
+Pour chaque action sensible, il faut enregistrer
+
+acteur
+date/heure
+action
+objet concerné
+ancien statut
+nouveau statut
+raison/motif
+éventuellement IP / device si nécessaire
+Règle essentielle
+Toute action critique doit exiger un motif :
+
+annulation,
+ajustement de stock,
+correction de paiement,
+réouverture de période,
+modification après validation.
+7. Clôtures de période
+Très important pour éviter qu’un utilisateur modifie le passé et casse les rapports.
+
+Il faut plusieurs niveaux de clôture :
+
+Clôture de caisse/journée
+Empêche de modifier les opérations d’une journée déjà contrôlée.
+Clôture mensuelle
+Empêche d’ajouter/modifier ventes, achats, dépenses sur un mois clôturé.
+Clôture d’inventaire
+Fige un stock à une date de comptage.
+Clôture comptable
+Si un jour tu vas plus loin.
+Logique métier
+Après clôture :
+
+lecture autorisée,
+modification interdite,
+annulation interdite sauf réouverture autorisée,
+toute réouverture doit être tracée et réservée à un rôle fort.
+Exemple pratique
+Si mars 2026 est clôturé :
+
+on ne crée plus de paiement daté en mars 2026,
+on ne modifie plus une facture de mars 2026,
+on ne fait plus d’ajustement stock en mars 2026,
+sauf si un MANAGER ou ACCOUNTANT rouvre la période.
+8. Plan de modification recommandé
+Je te propose ce plan en 5 phases.
+
+Phase 1: Sécurisation immédiate
+Objectif: rendre le système moins dangereux sans gros refactor.
+
+Ajouter source_depot sur la facture
+Rendre obligatoire le dépôt à la validation
+Corriger monthly_summary pour utiliser le vrai HT
+Retirer ou renommer les indicateurs de marge douteux
+Interdire suppression de facture validée
+Ajouter annulation de facture avec motif
+Ajouter permissions simples par rôle sur validation/annulation
+Phase 2: Traçabilité et gouvernance
+Objectif: savoir qui a fait quoi.
+
+Réactiver proprement l’audit
+Créer un BusinessEventLog
+Exiger un motif sur les actions sensibles
+Tracer validations, annulations, ajustements, clôtures, réouvertures
+Phase 3: Cycle client propre
+Objectif: sortir du tout-facture.
+
+Introduire SalesOrder
+Lier livraison à commande ou facture selon ton choix
+Ajouter gestion des retours / avoirs
+Clarifier les statuts commerciaux
+Phase 4: Cycle fournisseur propre
+Objectif: gérer les dettes fournisseurs.
+
+Introduire dette fournisseur
+Séparer réception et paiement
+Créer paiement fournisseur
+Ne plus représenter tout achat seulement comme une dépense brute
+Phase 5: Clôtures et fiabilité
+Objectif: fiabiliser le pilotage dans le temps.
+
+Ajouter modèle PeriodClosure
+Bloquer les écritures sur période clôturée
+Ajouter clôture caisse, mensuelle, inventaire
+Ajouter tests métier sur tous les flux critiquesuq

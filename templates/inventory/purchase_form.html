@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Achats{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Créez un bon d’achat avec ses lignes.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'inventory:purchase_list' %}" class="btn btn-outline-secondary rounded-3">Retour</a>
+        <button type="submit" class="btn btn-dark rounded-3">Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-xl-4">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Fournisseur</label>
+                {{ form.supplier }}
+                {{ form.supplier.errors }}
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Dépôt de réception</label>
+                {{ form.depot }}
+                {{ form.depot.errors }}
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Date de commande</label>
+                {{ form.ordered_at }}
+                {{ form.ordered_at.errors }}
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Note</label>
+                {{ form.note }}
+                {{ form.note.errors }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Lignes d’achat</div>
+
+            <div class="table-responsive">
+              <table class="table inventory-lines-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Intrant </th>
+                    <th>Quantité</th>
+                    <th>Coût unitaire</th>
+                    <th>Suppr.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for subform in formset %}
+                  <tr>
+                    <td>
+                      {{ subform.id }}
+                      {{ subform.supply_item }}
+                      {{ subform.supply_item.errors }}
+                    </td>
+                    <td>
+                      {{ subform.qty_units }}
+                      {{ subform.qty_units.errors }}
+                    </td>
+                    <td>
+                      {{ subform.unit_cost }}
+                      {{ subform.unit_cost.errors }}
+                    </td>
+                    <td>
+                      {% if subform.instance.pk %}
+                        {{ subform.DELETE }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

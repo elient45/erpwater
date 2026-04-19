@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Rapport paiements{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport des paiements</h1>
+      <p class="text-muted mb-0">Suivi des paiements reçus par facture, méthode et compte financier.</p>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Total paiements</div>
+          <div class="report-kpi-value">{{ total_payments|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Liste des paiements</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Facture</th>
+              <th>Client</th>
+              <th>Compte</th>
+              <th>Méthode</th>
+              <th class="text-end">Montant</th>
+              <th>Reçu par</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payment in payments %}
+            <tr>
+              <td>
+                <div>{{ payment.paid_at|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ payment.paid_at|date:"H:i" }}</div>
+              </td>
+              <td class="fw-semibold">{{ payment.invoice.number }}</td>
+              <td>{{ payment.invoice.customer.name }}</td>
+              <td>{{ payment.account.name }}</td>
+              <td>{{ payment.get_method_display }}</td>
+              <td class="text-end fw-semibold">{{ payment.amount|intcomma }} FC</td>
+              <td>{{ payment.received_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">Aucun paiement enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Paiements par méthode</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Méthode</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in by_method %}
+                <tr>
+                  <td class="fw-semibold">{{ item.method }}</td>
+                  <td class="text-end">{{ item.total|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Paiements par compte</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Compte</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in by_account %}
+                <tr>
+                  <td class="fw-semibold">{{ item.account__name }}</td>
+                  <td class="text-end">{{ item.total|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

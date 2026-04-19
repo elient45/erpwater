@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Productions{% endblock %}
+{% block page_heading %}Production{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Ordres de production</h1>
+      <p class="text-muted mb-0">Suivez les productions planifiées, en cours et validées.</p>
+    </div>
+
+    <a href="{% url 'inventory:production_create' %}" class="btn btn-dark rounded-3 px-3">
+      Nouvelle production
+    </a>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Produit</th>
+              <th>Dépôt</th>
+              <th class="text-center">Prévu</th>
+              <th class="text-center">Net</th>
+              <th class="text-end">Coût total</th>
+              <th>Statut</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productions %}
+            <tr>
+              <td class="fw-semibold">{{ p.number }}</td>
+              <td>{{ p.product_name }}</td>
+              <td>{{ p.depot_name }}</td>
+              <td class="text-center">{{ p.planned_qty_packs }}</td>
+              <td class="text-center">{{ p.net_qty_packs }}</td>
+              <td class="text-end">{{ p.total_production_cost }} FC</td>
+              <td>
+                {% if p.status == "DRAFT" %}
+                  <span class="badge rounded-pill text-bg-secondary">Brouillon</span>
+                {% elif p.status == "IN_PROGRESS" %}
+                  <span class="badge rounded-pill text-bg-warning">En cours</span>
+                {% elif p.status == "DONE" %}
+                  <span class="badge rounded-pill text-bg-success">Terminée</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-danger">Annulée</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <a href="{% url 'inventory:production_detail' p.pk %}" class="btn btn-sm btn-outline-dark rounded-3">
+                  Voir
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">Aucune production enregistrée.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

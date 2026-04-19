@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Finance{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">{{ subtitle }}</div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'expenses:financial_transaction_list' %}" class="btn btn-outline-secondary rounded-3 px-4">
+          Retour
+        </a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-xl-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <div class="odoo-section">
+              <div class="odoo-section-title">Informations de l'opération</div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">{{ form.account.label }}</label>
+                  {{ form.account }}
+                  {{ form.account.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">{{ form.amount.label }}</label>
+                  {{ form.amount }}
+                  {{ form.amount.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">{{ form.transaction_date.label }}</label>
+                  {{ form.transaction_date }}
+                  {{ form.transaction_date.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">{{ form.reference.label }}</label>
+                  {{ form.reference }}
+                  {{ form.reference.errors }}
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">{{ form.description.label }}</label>
+                  {{ form.description }}
+                  {{ form.description.errors }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card odoo-side-panel border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Rappel</div>
+            <ul class="odoo-summary-list mb-0">
+              <li>Cette opération sera visible dans le journal financier.</li>
+              <li>Le compte choisi impactera immédiatement le solde.</li>
+              <li>Utilise une référence si tu veux rapprocher l'opération d'un justificatif.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

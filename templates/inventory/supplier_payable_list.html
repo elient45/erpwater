@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Dettes fournisseurs{% endblock %}
+{% block page_heading %}Fournisseurs{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Dettes fournisseurs</h1>
+      <p class="text-muted mb-0">Suivi des montants dus aux fournisseurs après réception des achats.</p>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Fournisseur</th>
+            <th>Achat</th>
+            <th class="text-end">Total</th>
+            <th class="text-end">Payé</th>
+            <th class="text-end">Reste</th>
+            <th>Statut</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payable in payables %}
+          <tr>
+            <td class="fw-semibold">{{ payable.number }}</td>
+            <td>{{ payable.supplier.name }}</td>
+            <td>{{ payable.purchase.number }}</td>
+            <td class="text-end">{{ payable.amount_total|intcomma }} FC</td>
+            <td class="text-end">{{ payable.amount_paid|intcomma }} FC</td>
+            <td class="text-end">{{ payable.amount_due|intcomma }} FC</td>
+            <td>
+              {% if payable.status == "PAID" %}
+                <span class="badge rounded-pill text-bg-success">Payée</span>
+              {% elif payable.status == "PARTIAL" %}
+                <span class="badge rounded-pill text-bg-warning">Partielle</span>
+              {% elif payable.status == "OPEN" %}
+                <span class="badge rounded-pill text-bg-dark">Ouverte</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-danger">Annulée</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{% url 'inventory:supplier_payable_detail' payable.pk %}" class="btn btn-sm btn-outline-dark rounded-3">Voir</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">Aucune dette fournisseur.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

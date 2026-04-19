@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Factures{% endblock %}
+{% block page_heading %}Factures{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des factures</h1>
+      <p class="text-muted mb-0">Consultez, suivez et gérez toutes les factures de l’entreprise.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'sales:invoice_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouvelle facture
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total factures : <strong>{{ invoices|length }}</strong>
+        </div>
+
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle invoice-table mb-0">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th class="text-end">TTC</th>
+              <th class="text-end">TVA incluse</th>
+              <th class="text-end">HT</th>
+              <th class="text-end">Payé</th>
+              <th class="text-end">Reste</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in invoices %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ invoice.number }}</div>
+                <div class="text-muted small">{{ invoice.get_sale_mode_display }}</div>
+                <div class="text-muted small">Depot : {{ invoice.source_depot.name|default:"-" }}</div>
+              </td>
+
+              <td>
+                <div class="fw-medium">{{ invoice.customer.name }}</div>
+                <div class="text-muted small">
+                  {{ invoice.customer.phone|default:"Aucun contact" }}
+                </div>
+              </td>
+
+              <td>
+                <div>{{ invoice.issue_date|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ invoice.issue_date|date:"H:i" }}</div>
+              </td>
+
+              <td>
+                {% if invoice.status == "DRAFT" %}
+                  <span class="badge rounded-pill text-bg-secondary">Brouillon</span>
+                {% elif invoice.status == "VALIDATED" %}
+                  <span class="badge rounded-pill text-bg-primary">Validée</span>
+                {% elif invoice.status == "PARTIAL" %}
+                  <span class="badge rounded-pill text-bg-warning">Paiement partiel</span>
+                {% elif invoice.status == "PAID" %}
+                  <span class="badge rounded-pill text-bg-success">Payée</span>
+                {% elif invoice.status == "CANCELLED" %}
+                  <span class="badge rounded-pill text-bg-danger">Annulée</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-light">{{ invoice.get_status_display }}</span>
+                {% endif %}
+              </td>
+
+              <td class="text-end fw-semibold">{{ invoice.total|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.tax_amount|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.total_before_tax|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.paid_amount|intcomma }} FC</td>
+              <td class="text-end">
+                {% if invoice.balance_due > 0 %}
+                  <span class="text-danger fw-semibold">{{ invoice.balance_due|intcomma }} FC</span>
+                {% else %}
+                  <span class="text-success fw-semibold">0 FC</span>
+                {% endif %}
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                  <a href="{% url 'sales:invoice_detail' invoice.pk %}" class="btn btn-sm btn-outline-dark rounded-3">
+                    Voir
+                  </a>
+
+                  {% if invoice.status == "DRAFT" %}
+                  <a href="{% url 'sales:invoice_validate' invoice.pk %}" class="btn btn-sm btn-dark rounded-3">
+                    Valider
+                  </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="10" class="text-center py-5 text-muted">
+                Aucune facture enregistrée.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

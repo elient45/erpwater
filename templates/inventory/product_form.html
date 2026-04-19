@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Créez ou modifiez un produit géré dans le stock et les ventes.</div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'inventory:product_list' %}" class="btn btn-outline-secondary rounded-3 px-4">
+          Retour
+        </a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      <div class="col-12 col-xl-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+
+            <div class="row g-4 align-items-start mb-4">
+              <div class="col-lg-8">
+                <div class="odoo-document-title">Fiche produit</div>
+                <div class="odoo-document-subtitle">Définissez les informations commerciales et de stock du produit.</div>
+              </div>
+            </div>
+
+            <div class="odoo-section">
+              <div class="odoo-section-title">Informations produit</div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nom</label>
+                  {{ form.name }}
+                  {{ form.name.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">SKU</label>
+                  {{ form.sku }}
+                  {{ form.sku.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Type d'unité</label>
+                  {{ form.unit_type }}
+                  {{ form.unit_type.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Sachets par pack</label>
+                  {{ form.sachets_per_pack }}
+                  {{ form.sachets_per_pack.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Prix de vente par défaut (FC)</label>
+                  {{ form.default_sale_price }}
+                  {{ form.default_sale_price.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Stock minimum</label>
+                  {{ form.min_stock }}
+                  {{ form.min_stock.errors }}
+                </div>
+
+                <div class="col-md-12">
+                  <div class="form-check mt-2">
+                    {{ form.is_active }}
+                    <label class="form-check-label">Produit actif</label>
+                  </div>
+                  {{ form.is_active.errors }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card odoo-side-panel border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Rappel</div>
+
+            <div class="odoo-summary-item">
+              <span>Module</span>
+              <strong>Stock / Vente</strong>
+            </div>
+
+            <div class="odoo-summary-item">
+              <span>Devise</span>
+              <strong>FC</strong>
+            </div>
+
+            <hr>
+
+            <div class="text-muted small mb-2">Conseils</div>
+            <ul class="odoo-summary-list mb-0">
+              <li>Utilise un SKU unique et clair.</li>
+              <li>Définis le bon prix par défaut pour la facturation.</li>
+              <li>Le stock minimum aide à détecter les ruptures.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

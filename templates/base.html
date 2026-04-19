@@ -1,0 +1,1112 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Water ERP{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    .entity-table thead th,
+.expense-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.entity-table tbody td,
+.expense-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.entity-table tbody tr:hover,
+.expense-table tbody tr:hover {
+  background: #fafafa;
+}
+.page-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.account-table thead th,
+.category-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.account-table tbody td,
+.category-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.account-table tbody tr:hover,
+.category-table tbody tr:hover {
+  background: #fafafa;
+}
+.page-card {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.invoice-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  border-bottom: 1px solid #e9ecef;
+  background: #fafafa;
+  white-space: nowrap;
+}
+
+.invoice-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.invoice-table tbody tr:hover {
+  background: #fafafa;
+}
+.movement-table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #6c757d;
+  background: #fafafa;
+}
+
+.movement-table tbody td {
+  padding: 1rem;
+}
+.inventory-lines-table thead th,
+.inventory-detail-table thead th,
+.depot-table thead th,
+.balance-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.inventory-lines-table tbody td,
+.inventory-detail-table tbody td,
+.depot-table tbody td,
+.balance-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.inventory-lines-table tbody tr:hover,
+.inventory-detail-table tbody tr:hover,
+.depot-table tbody tr:hover,
+.balance-table tbody tr:hover {
+  background: #fafafa;
+}
+.report-kpi-card {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.report-kpi-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  margin-bottom: 0.4rem;
+}
+
+.report-kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.report-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+}
+
+.report-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.report-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.report-table tbody tr:hover {
+  background: #fafafa;
+}
+.movement-table tbody tr:hover {
+  background: #f8f9fa;
+}
+.badge {
+  font-weight: 600;
+  padding: 0.5em 0.8em;
+}
+  .dashboard-card {
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.invoice-print-card {
+  border-radius: 18px;
+}
+
+.invoice-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.invoice-number {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-meta {
+  margin-bottom: 0.35rem;
+  color: #495057;
+}
+
+.info-panel {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+
+.info-panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+}
+
+.info-line {
+  margin-bottom: 0.45rem;
+}
+
+.note-box {
+  background: #fcfcfc;
+  border: 1px dashed #d9d9d9;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+
+.invoice-detail-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.invoice-detail-table tbody td,
+.invoice-detail-table tfoot th {
+  padding-top: 0.95rem;
+  padding-bottom: 0.95rem;
+  border-color: #f1f3f5;
+}
+
+.invoice-detail-table tbody tr:hover {
+  background: #fafafa;
+}
+.invoice-form-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.invoice-form-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+  vertical-align: top;
+}
+
+.invoice-form-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.invoice-form-note {
+  font-size: 0.88rem;
+  color: #6c757d;
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+.odoo-form-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.odoo-form-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.odoo-sheet {
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.odoo-side-panel {
+  border-radius: 18px;
+  background: #ffffff;
+  position: sticky;
+  top: 88px;
+}
+
+.odoo-document-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.odoo-document-subtitle {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.odoo-status-draft {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.odoo-section {
+  border-top: 1px solid #edf0f2;
+  padding-top: 1.2rem;
+}
+
+.odoo-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.odoo-section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.odoo-lines-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.odoo-lines-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+  vertical-align: top;
+}
+
+.odoo-lines-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.odoo-lines-help {
+  font-size: 0.88rem;
+  color: #6c757d;
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.odoo-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.odoo-summary-item:last-child {
+  border-bottom: none;
+}
+
+.odoo-summary-list {
+  padding-left: 1rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.odoo-summary-list li {
+  margin-bottom: 0.45rem;
+}
+.delivery-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.delivery-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.delivery-table tbody tr:hover {
+  background: #fafafa;
+}
+@media (max-width: 1199.98px) {
+  .odoo-side-panel {
+    position: static;
+  }
+}
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  .sidebar,
+  .topbar,
+  .mobile-topbar,
+  .offcanvas,
+  .no-print,
+  .btn,
+  form,
+  .alert {
+    display: none !important;
+  }
+
+  .content-wrap {
+    margin-left: 0 !important;
+  }
+
+  .page-content {
+    padding: 0 !important;
+  }
+
+  .container-fluid {
+    padding: 0 !important;
+  }
+
+  .invoice-print-card,
+  .page-card,
+  .card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .invoice-detail-table thead th {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .info-panel,
+  .note-box {
+    background: #fff !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+  .card-label {
+  font-size: 13px;
+  color: #888;
+}
+
+  .card-value {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+  .section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+    .chart-placeholder {
+  height: 200px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 13px;
+}
+
+    :root {
+      --sidebar-width: 280px;
+      --topbar-height: 64px;
+      --sidebar-bg: #111111;
+      --sidebar-text: #f5f5f5;
+      --sidebar-muted: #bdbdbd;
+      --sidebar-hover: #1e1e1e;
+      --sidebar-active: #ffffff;
+      --content-bg: #f8f9fa;
+      --card-radius: 16px;
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.06);
+      --border-soft: #e9ecef;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--content-bg);
+      color: #111;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: var(--topbar-height);
+      background: #fff;
+      border-bottom: 1px solid var(--border-soft);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #111;
+      text-decoration: none;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1040;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #1f1f1f;
+    }
+
+    .sidebar-header {
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      border-bottom: 1px solid #1f1f1f;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.4px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 1rem 0.75rem 1.25rem;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sidebar-muted);
+      padding: 0.75rem 0.85rem 0.35rem;
+      margin-top: 0.25rem;
+    }
+
+    .sidebar .nav-link {
+      color: var(--sidebar-text);
+      border-radius: 12px;
+      padding: 0.72rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      margin-bottom: 0.2rem;
+    }
+
+    .sidebar .nav-link i {
+      font-size: 1rem;
+      color: #ffffff;
+      opacity: 0.95;
+    }
+
+    .sidebar .nav-link:hover {
+      background: var(--sidebar-hover);
+      color: var(--sidebar-active);
+    }
+
+    .sidebar .nav-link.active {
+      background: #ffffff;
+      color: #111111;
+      font-weight: 600;
+    }
+
+    .sidebar .nav-link.active i {
+      color: #111111;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid #1f1f1f;
+      padding: 1rem;
+      flex-shrink: 0;
+    }
+
+    .user-card {
+      background: #171717;
+      border: 1px solid #232323;
+      border-radius: 14px;
+      padding: 0.85rem 0.9rem;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.1rem;
+      font-size: 0.95rem;
+    }
+
+    .user-role {
+      color: var(--sidebar-muted);
+      font-size: 0.82rem;
+    }
+
+    .logout-btn {
+      color: #fff;
+      text-decoration: none;
+      padding: 0.65rem 0.85rem;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: transparent;
+      border: 1px solid #2a2a2a;
+      width: 100%;
+      justify-content: center;
+      transition: 0.2s ease;
+      margin-top: 0.75rem;
+    }
+
+    .logout-btn:hover {
+      background: #1f1f1f;
+    }
+
+    .content-wrap {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+    }
+
+    .page-content {
+      padding: 1.5rem;
+    }
+
+    .page-card {
+      background: #fff;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mobile-topbar {
+      display: none;
+    }
+
+    .alert {
+      border-radius: 14px;
+    }
+
+    .offcanvas.offcanvas-start {
+      width: 280px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+    }
+
+    .offcanvas-header {
+      border-bottom: 1px solid #1f1f1f;
+    }
+
+    .offcanvas .nav-link {
+      color: var(--sidebar-text);
+      border-radius: 12px;
+      padding: 0.72rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .offcanvas .nav-link:hover {
+      background: var(--sidebar-hover);
+      color: #fff;
+    }
+    .finance-kpi-card {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.finance-kpi-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  margin-bottom: 0.4rem;
+}
+
+.finance-kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.finance-table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #fafafa;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.finance-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #f1f3f5;
+}
+
+.finance-table tbody tr:hover {
+  background: #fafafa;
+}
+    .offcanvas .nav-link.active {
+      background: #ffffff;
+      color: #111;
+      font-weight: 600;
+    }
+
+    .offcanvas .nav-link.active i {
+      color: #111;
+    }
+
+    @media (max-width: 991.98px) {
+      .sidebar {
+        display: none;
+      }
+
+      .content-wrap {
+        margin-left: 0;
+      }
+
+      .mobile-topbar {
+        display: flex;
+      }
+
+      .page-content {
+        padding: 1rem;
+      }
+
+      .topbar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% url 'reports:dashboard' as reports_dashboard_url %}
+  {% url 'expenses:financial_transaction_list' as expenses_transactions_url %}
+  {% url 'inventory:product_list' as inventory_products_url %}
+  {% url 'inventory:depot_list' as inventory_depots_url %}
+  {% url 'inventory:movement_list' as inventory_movements_url %}
+  {% url 'inventory:stock_balance_list' as inventory_balances_url %}
+  {% url 'inventory:production_list' as inventory_productions_url %}
+  {% url 'inventory:supplier_list' as inventory_suppliers_url %}
+  {% url 'inventory:purchase_list' as inventory_purchases_url %}
+  {% url 'sales:client_list' as sales_clients_url %}
+  {% url 'sales:invoice_list' as sales_invoices_url %}
+  {% url 'sales:delivery_list' as sales_deliveries_url %}
+  {% url 'expenses:expense_list' as expenses_list_url %}
+  {% url 'expenses:account_list' as expenses_accounts_url %}
+  {% url 'expenses:category_list' as expenses_categories_url %}
+  {% url 'reports:sales_report' as reports_sales_url %}
+  {% url 'reports:expenses_report' as reports_expenses_url %}
+  {% url 'reports:stock_report' as reports_stock_url %}
+  {% url 'reports:payments_report' as reports_payments_url %}
+  {% url 'reports:monthly_summary' as reports_monthly_summary_url %}
+
+
+  <div class="app-shell">
+    {% if request.user.is_authenticated %}
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <span>Water ERP</span>
+        </div>
+
+        <div class="sidebar-body">
+          <div class="sidebar-section-title">Vue générale</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == reports_dashboard_url %}active{% endif %}" href="{{ reports_dashboard_url }}">
+              <i class="bi bi-grid-1x2"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_monthly_summary_url %}active{% endif %}" href="{{ reports_monthly_summary_url }}">
+              <i class="bi bi-calendar-event"></i>
+              <span>Rapport Mensuel</span>
+            </a>
+          </nav>
+          <div class="sidebar-section-title">Stock</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == inventory_products_url %}active{% endif %}" href="{{ inventory_products_url }}">
+              <i class="bi bi-box-seam"></i>
+              <span>Produits</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_depots_url %}active{% endif %}" href="{{ inventory_depots_url }}">
+              <i class="bi bi-building"></i>
+              <span>Dépôts</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_movements_url %}active{% endif %}" href="{{ inventory_movements_url }}">
+              <i class="bi bi-arrow-left-right"></i>
+              <span>Mouvements</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_balances_url %}active{% endif %}" href="{{ inventory_balances_url }}">
+              <i class="bi bi-bar-chart-line"></i>
+              <span>État du stock</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_productions_url %}active{% endif %}" href="{{ inventory_productions_url }}">
+              <i class="bi bi-wrench"></i>
+              <span>Ordres de Production</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Achats</div>
+          <nav class="nav flex-column mb-2">
+           <li class="nav-item">
+  <a class="nav-link" href="{% url 'inventory:supplier_list' %}">Fournisseurs</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'inventory:purchase_list' %}">Achats</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'inventory:supplier_payable_list' %}">Dettes fournisseurs</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'inventory:supply_item_list' %}">Intrants</a>
+</li>
+          </nav>
+
+          <div class="sidebar-section-title">Ventes</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == sales_clients_url %}active{% endif %}" href="{{ sales_clients_url }}">
+              <i class="bi bi-people"></i>
+              <span>Clients</span>
+            </a>
+            <a class="nav-link {% if request.path == sales_invoices_url %}active{% endif %}" href="{{ sales_invoices_url }}">
+              <i class="bi bi-receipt"></i>
+              <span>Factures</span>
+            </a>
+            <a class="nav-link {% if request.path == sales_deliveries_url %}active{% endif %}" href="{{ sales_deliveries_url }}">
+              <i class="bi bi-truck"></i>
+              <span>Livraisons</span>
+            </a>
+          </nav>
+          
+          <div class="sidebar-section-title">Finance</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == expenses_list_url %}active{% endif %}" href="{{ expenses_list_url }}">
+              <i class="bi bi-cash-stack"></i>
+              <span>Dépenses</span>
+            </a>
+            <a class="nav-link {% if request.path == expenses_accounts_url %}active{% endif %}" href="{{ expenses_accounts_url }}">
+              <i class="bi bi-wallet2"></i>
+              <span>Comptes</span>
+            </a>
+            <li class="nav-item">
+                <a href="{% url 'reports:period_closure_list' %}" class="nav-link">Clôtures</a>
+            </li>
+            
+            
+            <a class="nav-link {% if request.path == expenses_categories_url %}active{% endif %}" href="{{ expenses_categories_url }}">
+              <i class="bi bi-tags"></i>
+              <span>Catégories</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Rapports</div>
+          <nav class="nav flex-column">
+            <a class="nav-link {% if request.path == reports_sales_url %}active{% endif %}" href="{{ reports_sales_url }}">
+              <i class="bi bi-graph-up"></i>
+              <span>Rapport ventes</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_expenses_url %}active{% endif %}" href="{{ reports_expenses_url }}">
+              <i class="bi bi-graph-down"></i>
+              <span>Rapport dépenses</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_stock_url %}active{% endif %}" href="{{ reports_stock_url }}">
+              <i class="bi bi-boxes"></i>
+              <span>Rapport stock</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_payments_url %}active{% endif %}" href="{{ reports_payments_url }}">
+              <i class="bi bi-credit-card-2-front"></i>
+              <span>Rapport paiements</span>
+            </a>
+            <a class="nav-link {% if request.path == expenses_transactions_url %}active{% endif %}" href="{{ expenses_transactions_url }}">
+              <i class="bi bi-journal-text"></i>
+              <span>Journal financier</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="user-card">
+            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-role">Utilisateur connecté</div>
+          </div>
+
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Déconnexion</span>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="mobileSidebarLabel">Water ERP</h5>
+          <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body">
+          <div class="sidebar-section-title">Vue générale</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == reports_dashboard_url %}active{% endif %}" href="{{ reports_dashboard_url }}">
+              <i class="bi bi-grid-1x2"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_monthly_summary_url %}active{% endif %}" href="{{ reports_monthly_summary_url }}">
+              <i class="bi bi-calendar-event"></i>
+              <span>Rapport Mensuel</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Stock</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == inventory_products_url %}active{% endif %}" href="{{ inventory_products_url }}">
+              <i class="bi bi-box-seam"></i>
+              <span>Produits</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_depots_url %}active{% endif %}" href="{{ inventory_depots_url }}">
+              <i class="bi bi-building"></i>
+              <span>Dépôts</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_movements_url %}active{% endif %}" href="{{ inventory_movements_url }}">
+              <i class="bi bi-arrow-left-right"></i>
+              <span>Mouvements</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_balances_url %}active{% endif %}" href="{{ inventory_balances_url }}">
+              <i class="bi bi-bar-chart-line"></i>
+              <span>État du stock</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_productions_url %}active{% endif %}" href="{{ inventory_productions_url }}">
+              <i class="bi bi-wrench"></i>
+              <span>Ordres de Production</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Achats</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == inventory_suppliers_url %}active{% endif %}" href="{{ inventory_suppliers_url }}">
+              <i class="bi bi-shop"></i>
+              <span>Fournisseurs</span>
+            </a>
+            <a class="nav-link {% if request.path == inventory_purchases_url %}active{% endif %}" href="{{ inventory_purchases_url }}">
+              <i class="bi bi-bag-check"></i>
+              <span>Achats</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Ventes</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == sales_clients_url %}active{% endif %}" href="{{ sales_clients_url }}">
+              <i class="bi bi-people"></i>
+              <span>Clients</span>
+            </a>
+            <a class="nav-link {% if request.path == sales_invoices_url %}active{% endif %}" href="{{ sales_invoices_url }}">
+              <i class="bi bi-receipt"></i>
+              <span>Factures</span>
+            </a>
+            <a class="nav-link {% if request.path == sales_deliveries_url %}active{% endif %}" href="{{ sales_deliveries_url }}">
+              <i class="bi bi-truck"></i>
+              <span>Livraisons</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Finance</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == expenses_list_url %}active{% endif %}" href="{{ expenses_list_url }}">
+              <i class="bi bi-cash-stack"></i>
+              <span>Dépenses</span>
+            </a>
+            <a class="nav-link {% if request.path == expenses_accounts_url %}active{% endif %}" href="{{ expenses_accounts_url }}">
+              <i class="bi bi-wallet2"></i>
+              <span>Comptes</span>
+            </a>
+            <a class="nav-link {% if request.path == expenses_categories_url %}active{% endif %}" href="{{ expenses_categories_url }}">
+              <i class="bi bi-tags"></i>
+              <span>Catégories</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section-title">Rapports</div>
+          <nav class="nav flex-column mb-2">
+            <a class="nav-link {% if request.path == reports_sales_url %}active{% endif %}" href="{{ reports_sales_url }}">
+              <i class="bi bi-graph-up"></i>
+              <span>Rapport ventes</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_expenses_url %}active{% endif %}" href="{{ reports_expenses_url }}">
+              <i class="bi bi-graph-down"></i>
+              <span>Rapport dépenses</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_stock_url %}active{% endif %}" href="{{ reports_stock_url }}">
+              <i class="bi bi-boxes"></i>
+              <span>Rapport stock</span>
+            </a>
+            <a class="nav-link {% if request.path == reports_payments_url %}active{% endif %}" href="{{ reports_payments_url }}">
+              <i class="bi bi-credit-card-2-front"></i>
+              <span>Rapport paiements</span>
+            </a>
+            <a class="nav-link {% if request.path == expenses_transactions_url %}active{% endif %}" href="{{ expenses_transactions_url }}">
+              <i class="bi bi-journal-text"></i>
+              <span>Journal financier</span>
+            </a>
+          </nav>
+
+          <hr class="border-secondary-subtle my-3">
+
+          <div class="user-card">
+            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-role">Utilisateur connecté</div>
+          </div>
+
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Déconnexion</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="content-wrap {% if not request.user.is_authenticated %}ms-0{% endif %}">
+      {% if request.user.is_authenticated %}
+        <header class="topbar d-none d-lg-flex align-items-center justify-content-between px-4">
+          <div>
+            <span class="brand-text">{% block page_heading %}Interface de gestion{% endblock %}</span>
+          </div>
+          <div class="text-muted small">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+        </header>
+
+        <header class="mobile-topbar navbar bg-white border-bottom px-3 py-2 d-lg-none">
+          <button class="btn btn-outline-dark border-0 shadow-none px-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <span class="brand-text">Water ERP</span>
+          <span class="small text-muted">{{ request.user.username }}</span>
+        </header>
+      {% else %}
+        <header class="topbar d-flex align-items-center justify-content-between px-4">
+          <a href="/" class="brand-text">Water ERP</a>
+          <a href="{% url 'accounts:login' %}" class="btn btn-dark">Connexion</a>
+        </header>
+      {% endif %}
+
+      <main class="{% if request.user.is_authenticated %}page-content{% else %}container py-5{% endif %}">
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} shadow-sm mb-2">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

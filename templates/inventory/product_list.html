@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Produits{% endblock %}
+{% block page_heading %}Stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des produits</h1>
+      <p class="text-muted mb-0">Gérez les produits utilisés dans le stock, les mouvements et la facturation.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'inventory:product_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouveau produit
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total produits : <strong>{{ products|length }}</strong>
+        </div>
+        <div>
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table product-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>SKU</th>
+              <th>Type</th>
+              <th class="text-center">Qté / Pack</th>
+              <th class="text-end">Prix vente</th>
+              <th class="text-center">Stock min</th>
+              <th>État</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ product.name }}</div>
+              </td>
+              <td>{{ product.sku|default:"-" }}</td>
+              <td>{{ product.get_unit_type_display }}</td>
+              <td class="text-center">{{ product.sachets_per_pack|default:"-" }}</td>
+              <td class="text-end fw-semibold">{{ product.default_sale_price|floatformat:2 }} FC</td>
+              <td class="text-center">{{ product.min_stock }}</td>
+              <td>
+                {% if product.is_active %}
+                  <span class="badge rounded-pill text-bg-success">Actif</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-secondary">Inactif</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <a href="{% url 'inventory:product_update' product.pk %}" class="btn btn-sm btn-outline-dark rounded-3">
+                  Modifier
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">Aucun produit enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

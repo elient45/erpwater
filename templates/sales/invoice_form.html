@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Facturation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger shadow-sm">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% if formset.non_form_errors %}
+      <div class="alert alert-danger shadow-sm">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Créez une facture dans un format structuré, lisible et orienté gestion.</div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'sales:invoice_list' %}" class="btn btn-outline-secondary rounded-3 px-4">
+          Retour
+        </a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    <div class="card odoo-sheet border-0 shadow-sm">
+      <div class="card-body p-4 p-lg-5">
+
+        <div class="row g-4 align-items-start mb-4">
+          <div class="col-lg-8">
+            <div class="odoo-document-title">Facture client</div>
+            <div class="odoo-document-subtitle">Renseignez les informations generales puis les lignes de vente. Les prix saisis sont consideres comme TTC.</div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="odoo-status-draft">
+              État initial : Brouillon
+            </div>
+          </div>
+        </div>
+
+        <div class="odoo-section mb-4">
+          <div class="odoo-section-title">Informations générales</div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Client</label>
+              {{ form.customer }}
+              {{ form.customer.errors }}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Date facture</label>
+              {{ form.issue_date }}
+              {{ form.issue_date.errors }}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Date échéance</label>
+              {{ form.due_date }}
+              {{ form.due_date.errors }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Depot source</label>
+              {{ form.source_depot }}
+              {{ form.source_depot.errors }}
+              <div class="form-text">Obligatoire pour valider la facture et sortir le stock.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Mode de vente</label>
+              {{ form.sale_mode }}
+              {{ form.sale_mode.errors }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Remise globale TTC (FC)</label>
+              {{ form.discount }}
+              {{ form.discount.errors }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">TVA incluse (%)</label>
+              {{ form.tax_rate }}
+              {{ form.tax_rate.errors }}
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Note</label>
+              {{ form.note }}
+              {{ form.note.errors }}
+            </div>
+          </div>
+        </div>
+
+        <div class="odoo-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="odoo-section-title mb-0">Lignes de facture</div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-dark btn-sm rounded-3" id="add-line-btn">
+                Ajouter une ligne
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table odoo-lines-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th style="min-width: 220px;">Produit</th>
+                  <th style="min-width: 220px;">Description</th>
+                  <th style="min-width: 110px;">Quantité</th>
+                  <th style="min-width: 150px;">Prix unitaire</th>
+                  <th style="min-width: 130px;">Remise</th>
+                  <th style="min-width: 120px;" class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="invoice-lines-body">
+                {% for subform in formset %}
+                <tr class="invoice-line-row">
+                  <td>
+                    {{ subform.id }}
+                    {{ subform.product }}
+                    {{ subform.product.errors }}
+                  </td>
+                  <td>
+                    {{ subform.description }}
+                    {{ subform.description.errors }}
+                  </td>
+                  <td>
+                    {{ subform.qty_packs }}
+                    {{ subform.qty_packs.errors }}
+                  </td>
+                  <td>
+                    {{ subform.unit_price }}
+                    {{ subform.unit_price.errors }}
+                  </td>
+                  <td>
+                    {{ subform.discount }}
+                    {{ subform.discount.errors }}
+                  </td>
+                  <td class="text-center">
+                    {% if subform.instance.pk %}
+                      <div class="form-check d-flex justify-content-center">
+                        {{ subform.DELETE }}
+                      </div>
+                    {% else %}
+                      <button type="button" class="btn btn-sm btn-outline-danger remove-line-btn rounded-3">
+                        Retirer
+                      </button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="odoo-lines-help mt-3">
+            Vous pouvez ajouter autant de lignes que nécessaire. Les lignes vides sont ignorées à l’enregistrement.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+  <template id="empty-form-template">
+    <tr class="invoice-line-row">
+      <td>
+        __PRODUCT__
+      </td>
+      <td>
+        __DESCRIPTION__
+      </td>
+      <td>
+        __QTY__
+      </td>
+      <td>
+        __UNIT_PRICE__
+      </td>
+      <td>
+        __DISCOUNT__
+      </td>
+      <td class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-danger remove-line-btn rounded-3">
+          Retirer
+        </button>
+      </td>
+    </tr>
+  </template>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const addLineBtn = document.getElementById("add-line-btn");
+  const tableBody = document.getElementById("invoice-lines-body");
+  const totalFormsInput = document.getElementById("id_items-TOTAL_FORMS");
+  const template = document.getElementById("empty-form-template");
+
+  function bindRemoveButtons() {
+    document.querySelectorAll(".remove-line-btn").forEach((btn) => {
+      btn.onclick = function () {
+        const row = this.closest("tr");
+        if (row) {
+          row.remove();
+        }
+      };
+    });
+  }
+
+  addLineBtn.addEventListener("click", function () {
+    const formIndex = parseInt(totalFormsInput.value, 10);
+    let html = template.innerHTML;
+
+    html = html.replace(
+      "__PRODUCT__",
+      `<select name="items-${formIndex}-product" class="form-select">
+        ${document.querySelector('select[name="items-0-product"]').innerHTML}
+      </select>`
+    );
+
+    html = html.replace(
+      "__DESCRIPTION__",
+      `<input type="text" name="items-${formIndex}-description" class="form-control" placeholder="Description optionnelle">`
+    );
+
+    html = html.replace(
+      "__QTY__",
+      `<input type="number" name="items-${formIndex}-qty_packs" class="form-control" min="0">`
+    );
+
+    html = html.replace(
+      "__UNIT_PRICE__",
+      `<input type="number" name="items-${formIndex}-unit_price" class="form-control" step="0.01" min="0">`
+    );
+
+    html = html.replace(
+      "__DISCOUNT__",
+      `<input type="number" name="items-${formIndex}-discount" class="form-control" step="0.01" min="0" value="0.00">`
+    );
+
+    tableBody.insertAdjacentHTML("beforeend", html);
+    totalFormsInput.value = formIndex + 1;
+    bindRemoveButtons();
+  });
+
+  bindRemoveButtons();
+});
+</script>
+{% endblock %}

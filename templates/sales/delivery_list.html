@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Livraisons{% endblock %}
+{% block page_heading %}Livraisons{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des livraisons</h1>
+      <p class="text-muted mb-0">Suivez les affectations, le statut et l’historique des livraisons.</p>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total livraisons : <strong>{{ deliveries|length }}</strong>
+        </div>
+        <div>
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table delivery-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Facture</th>
+              <th>Client</th>
+              <th>Livreur</th>
+              <th>Date prévue</th>
+              <th>Statut</th>
+              <th>Destinataire</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for delivery in deliveries %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ delivery.invoice.number }}</div>
+                <div class="text-muted small">{{ delivery.invoice.get_sale_mode_display }}</div>
+              </td>
+
+              <td>
+                <div class="fw-medium">{{ delivery.invoice.customer.name }}</div>
+                <div class="text-muted small">{{ delivery.invoice.customer.phone|default:"Aucun contact" }}</div>
+              </td>
+
+              <td>{{ delivery.delivered_by.get_full_name|default:delivery.delivered_by.username }}</td>
+
+              <td>
+                <div>{{ delivery.delivery_date|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ delivery.delivery_date|date:"H:i" }}</div>
+              </td>
+
+              <td>
+                {% if delivery.status == "PENDING" %}
+                  <span class="badge rounded-pill text-bg-secondary">En attente</span>
+                {% elif delivery.status == "IN_TRANSIT" %}
+                  <span class="badge rounded-pill text-bg-warning">En cours</span>
+                {% elif delivery.status == "DELIVERED" %}
+                  <span class="badge rounded-pill text-bg-success">Livrée</span>
+                {% elif delivery.status == "FAILED" %}
+                  <span class="badge rounded-pill text-bg-danger">Échec</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-light">{{ delivery.get_status_display }}</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <div>{{ delivery.recipient_name|default:"-" }}</div>
+                <div class="text-muted small">{{ delivery.recipient_phone|default:"-" }}</div>
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                  <a href="{% url 'sales:delivery_detail' delivery.pk %}" class="btn btn-sm btn-outline-dark rounded-3">
+                    Voir
+                  </a>
+                  <a href="{% url 'sales:delivery_update' delivery.pk %}" class="btn btn-sm btn-dark rounded-3">
+                    Modifier
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">Aucune livraison enregistrée.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Rapport dépenses{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport des dépenses</h1>
+      <p class="text-muted mb-0">Analyse des sorties financières par catégorie, compte et utilisateur.</p>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Total dépenses</div>
+          <div class="report-kpi-value">{{ total_expenses|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Liste des dépenses</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Catégorie</th>
+              <th>Compte</th>
+              <th>Description</th>
+              <th class="text-end">Montant</th>
+              <th>Créé par</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>
+                <div>{{ e.spent_at|date:"d/m/Y" }}</div>
+                <div class="text-muted small">{{ e.spent_at|date:"H:i" }}</div>
+              </td>
+              <td class="fw-semibold">{{ e.category.name }}</td>
+              <td>{{ e.account.name }}</td>
+              <td>{{ e.description|default:"-" }}</td>
+              <td class="text-end fw-semibold">{{ e.amount|intcomma }} FC</td>
+              <td>{{ e.created_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">Aucune dépense enregistrée.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Dépenses par catégorie</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Catégorie</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in by_category %}
+                <tr>
+                  <td class="fw-semibold">{{ item.category__name }}</td>
+                  <td class="text-end">{{ item.total|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Dépenses par compte</div>
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Compte</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in by_account %}
+                <tr>
+                  <td class="fw-semibold">{{ item.account__name }}</td>
+                  <td class="text-end">{{ item.total|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center py-4 text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

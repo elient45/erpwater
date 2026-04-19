@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Achat {{ purchase.number }}{% endblock %}
+{% block page_heading %}Achats{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">{{ purchase.number }}</h1>
+      <p class="text-muted mb-0">Détail du bon d’achat et de son suivi fournisseur.</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'inventory:purchase_list' %}" class="btn btn-outline-dark rounded-3">Retour</a>
+
+      {% if purchase.status != "RECEIVED" %}
+        <a href="{% url 'inventory:purchase_receive' purchase.pk %}" class="btn btn-dark rounded-3">Réceptionner</a>
+      {% endif %}
+
+      {% if purchase.supplier_payable %}
+        <a href="{% url 'inventory:supplier_payable_detail' purchase.supplier_payable.pk %}" class="btn btn-outline-secondary rounded-3">
+          Voir la dette fournisseur
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Informations</div>
+        <div class="info-line"><strong>Fournisseur :</strong> {{ purchase.supplier.name }}</div>
+        <div class="info-line"><strong>Dépôt :</strong> {{ purchase.depot_name }}</div>
+        <div class="info-line"><strong>Date :</strong> {{ purchase.ordered_at|date:"d/m/Y H:i" }}</div>
+        <div class="info-line"><strong>Statut :</strong> {{ purchase.get_status_display }}</div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Suivi</div>
+        <div class="info-line"><strong>Total :</strong> {{ purchase.total|intcomma }} FC</div>
+        <div class="info-line"><strong>Réception :</strong> {{ purchase.received_at|date:"d/m/Y H:i"|default:"-" }}</div>
+        <div class="info-line"><strong>Dette créée :</strong> {{ purchase.payable_created|yesno:"Oui,Non" }}</div>
+        {% if purchase.supplier_payable %}
+        <div class="info-line"><strong>Reste à payer :</strong> {{ purchase.supplier_payable.amount_due|intcomma }} FC</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mt-4">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Intrant</th>
+            <th class="text-center">Qté</th>
+            <th class="text-end">Coût unitaire</th>
+            <th class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in purchase.items.all %}
+          <tr>
+            <td>{{ item.supply_item_name }}</td>
+            <td class="text-center">{{ item.qty_units }}</td>
+            <td class="text-end">{{ item.unit_cost|intcomma }} FC</td>
+            <td class="text-end">{{ item.line_total|intcomma }} FC</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-5 text-muted">Aucune ligne.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-end">Total achat</th>
+            <th class="text-end">{{ purchase.total|intcomma }} FC</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Rapport stock{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport du stock</h1>
+      <p class="text-muted mb-0">Vue synthétique des quantités disponibles et des alertes de stock minimum.</p>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Stock total</div>
+          <div class="report-kpi-value">{{ total_stock|intcomma }}</div>
+          <div class="text-muted small">unités de vente</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">État du stock</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Dépôt</th>
+              <th>Produit</th>
+              <th class="text-center">Quantité</th>
+              <th class="text-center">Stock minimum</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for balance in balances %}
+            <tr>
+              <td>{{ balance.depot.name }}</td>
+              <td class="fw-semibold">{{ balance.product.name }}</td>
+              <td class="text-center">{{ balance.qty_packs|intcomma }}</td>
+              <td class="text-center">{{ balance.product.min_stock|intcomma }}</td>
+              <td>
+                {% if balance.qty_packs <= balance.product.min_stock %}
+                  <span class="badge rounded-pill text-bg-danger">Stock bas</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-success">OK</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">Aucun stock.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Produits en alerte</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Dépôt</th>
+              <th>Produit</th>
+              <th class="text-center">Qté</th>
+              <th class="text-center">Min</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for balance in low_stock_products %}
+            <tr>
+              <td>{{ balance.depot.name }}</td>
+              <td class="fw-semibold">{{ balance.product.name }}</td>
+              <td class="text-center">{{ balance.qty_packs|intcomma }}</td>
+              <td class="text-center">{{ balance.product.min_stock|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-4 text-muted">Aucune alerte.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

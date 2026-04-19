@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ formset.management_form }}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Créez un mouvement d’entrée, de sortie ou de transfert de stock.</div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'inventory:movement_list' %}" class="btn btn-outline-secondary rounded-3 px-4">
+          Retour
+        </a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      <div class="col-12 col-xl-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+
+            <div class="row g-4 align-items-start mb-4">
+              <div class="col-lg-8">
+                <div class="odoo-document-title">Fiche mouvement de stock</div>
+                <div class="odoo-document-subtitle">Renseignez le type, les dépôts et les lignes du mouvement.</div>
+              </div>
+            </div>
+
+            <div class="odoo-section mb-4">
+              <div class="odoo-section-title">Informations générales</div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Date du mouvement</label>
+                  {{ form.movement_date }}
+                  {{ form.movement_date.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Type</label>
+                  {{ form.movement_type }}
+                  {{ form.movement_type.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Dépôt source</label>
+                  {{ form.depot_from }}
+                  {{ form.depot_from.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Dépôt destination</label>
+                  {{ form.depot_to }}
+                  {{ form.depot_to.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Type de référence</label>
+                  {{ form.ref_type }}
+                  {{ form.ref_type.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">ID référence</label>
+                  {{ form.ref_id }}
+                  {{ form.ref_id.errors }}
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Motif / Observation</label>
+                  {{ form.reason }}
+                  {{ form.reason.errors }}
+                </div>
+              </div>
+            </div>
+
+            <div class="odoo-section">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="odoo-section-title mb-0">Lignes du mouvement</div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table inventory-lines-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th style="min-width: 220px;">Produit</th>
+                      <th style="min-width: 120px;">Quantité</th>
+                      <th style="min-width: 150px;">Coût unitaire</th>
+                      <th style="min-width: 90px;" class="text-center">Suppr.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for subform in formset %}
+                    <tr>
+                      <td>
+                        {{ subform.id }}
+                        {{ subform.product }}
+                        {{ subform.product.errors }}
+                      </td>
+                      <td>
+                        {{ subform.qty_packs }}
+                        {{ subform.qty_packs.errors }}
+                      </td>
+                      <td>
+                        {{ subform.unit_cost }}
+                        {{ subform.unit_cost.errors }}
+                        <div class="small text-muted mt-1">FC</div>
+                      </td>
+                      <td class="text-center">
+                        {% if subform.instance.pk %}
+                          <div class="form-check d-flex justify-content-center">
+                            {{ subform.DELETE }}
+                          </div>
+                        {% else %}
+                          <span class="text-muted">—</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="odoo-lines-help mt-3">
+                Renseignez au moins une ligne produit valide. Utilisez les dépôts source et destination selon le type de mouvement.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card odoo-side-panel border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Rappel</div>
+
+            <div class="odoo-summary-item">
+              <span>Module</span>
+              <strong>Stock</strong>
+            </div>
+
+            <div class="odoo-summary-item">
+              <span>Devise coût</span>
+              <strong>FC</strong>
+            </div>
+
+            <hr>
+
+            <div class="text-muted small mb-2">Conseils</div>
+            <ul class="odoo-summary-list mb-0">
+              <li>Choisis le bon type avant de sélectionner les dépôts.</li>
+              <li>Le dépôt source est important pour les sorties.</li>
+              <li>Le dépôt destination est important pour les entrées et transferts.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

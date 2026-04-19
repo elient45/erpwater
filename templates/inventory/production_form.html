@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Production{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Créez un ordre de production pour un produit fini.</div>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'inventory:production_list' %}" class="btn btn-outline-secondary rounded-3 px-4">Retour</a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="card odoo-sheet border-0 shadow-sm">
+      <div class="card-body p-4 p-lg-5">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Produit fini</label>
+            {{ form.product }}
+            {{ form.product.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Dépôt destination</label>
+            {{ form.depot }}
+            {{ form.depot.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Quantité prévue (packs)</label>
+            {{ form.planned_qty_packs }}
+            {{ form.planned_qty_packs.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Date de production</label>
+            {{ form.production_date }}
+            {{ form.production_date.errors }}
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Note</label>
+            {{ form.note }}
+            {{ form.note.errors }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

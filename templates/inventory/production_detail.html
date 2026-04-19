@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Production {{ production.number }}{% endblock %}
+{% block page_heading %}Production{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">{{ production.number }}</h1>
+      <p class="text-muted mb-0">Détail de l’ordre de production.</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'inventory:production_list' %}" class="btn btn-outline-dark rounded-3">Retour</a>
+
+      {% if production.status == "DRAFT" %}
+        <a href="{% url 'inventory:production_start' production.pk %}" class="btn btn-dark rounded-3">Démarrer</a>
+      {% endif %}
+
+      {% if production.status == "IN_PROGRESS" %}
+        <a href="{% url 'inventory:production_close' production.pk %}" class="btn btn-dark rounded-3">Clôturer / Valider</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Informations principales</div>
+        <div class="info-line"><strong>Produit :</strong> {{ production.product_name }}</div>
+        <div class="info-line"><strong>Dépôt :</strong> {{ production.depot_name }}</div>
+        <div class="info-line"><strong>Prévu :</strong> {{ production.planned_qty_packs }} packs</div>
+        <div class="info-line"><strong>Date :</strong> {{ production.production_date|date:"d/m/Y H:i" }}</div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Suivi</div>
+        <div class="info-line"><strong>Statut :</strong> {{ production.get_status_display }}</div>
+        <div class="info-line"><strong>Créé par :</strong> {{ production.created_by.username }}</div>
+        <div class="info-line"><strong>Validé par :</strong> {{ production.validated_by.username|default:"-" }}</div>
+        <div class="info-line"><strong>Validation :</strong> {{ production.validated_at|date:"d/m/Y H:i"|default:"-" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Quantités</div>
+        <div class="info-line"><strong>Produit :</strong> {{ production.actual_qty_packs }}</div>
+        <div class="info-line"><strong>Pertes :</strong> {{ production.loss_qty_packs }}</div>
+        <div class="info-line"><strong>Net :</strong> {{ production.net_qty_packs }}</div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Coût</div>
+        <div class="info-line"><strong>Mode :</strong> {{ production.get_cost_mode_display }}</div>
+        <div class="info-line"><strong>Coût total :</strong> {{ production.total_production_cost }} FC</div>
+        <div class="info-line"><strong>Coût unitaire / pack :</strong> {{ production.unit_production_cost }} FC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="note-box">
+      <div class="info-panel-title mb-2">Note</div>
+      <div>{{ production.note|default:"-" }}</div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

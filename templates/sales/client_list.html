@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block page_heading %}Clients{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Liste des clients</h1>
+      <p class="text-muted mb-0">Consultez et gérez les clients liés aux ventes et aux factures.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'sales:client_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouveau client
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div class="text-muted small">
+          Total clients : <strong>{{ clients|length }}</strong>
+        </div>
+        <div>
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche visuelle (placeholder)">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table entity-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Téléphone</th>
+              <th>Adresse</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ client.name }}</div>
+                <div class="text-muted small">{{ client.nif_rccm|default:"Aucun NIF / RCCM" }}</div>
+              </td>
+              <td>{{ client.get_client_type_display }}</td>
+              <td>{{ client.phone|default:"-" }}</td>
+              <td>{{ client.address|default:"-" }}</td>
+              <td>
+                {% if client.is_active %}
+                  <span class="badge rounded-pill text-bg-success">Actif</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-secondary">Inactif</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">Aucun client enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

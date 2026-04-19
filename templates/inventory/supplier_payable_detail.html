@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Dette {{ payable.number }}{% endblock %}
+{% block page_heading %}Fournisseurs{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">{{ payable.number }}</h1>
+      <p class="text-muted mb-0">Détail de la dette fournisseur liée à l’achat {{ payable.purchase.number }}.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'inventory:supplier_payable_list' %}" class="btn btn-outline-dark rounded-3">Retour</a>
+      {% if payable.status != "PAID" and payable.status != "CANCELLED" %}
+        <a href="{% url 'inventory:supplier_payment_create' payable.pk %}" class="btn btn-dark rounded-3">Enregistrer un paiement</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Informations</div>
+        <div class="info-line"><strong>Fournisseur :</strong> {{ payable.supplier.name }}</div>
+        <div class="info-line"><strong>Achat lié :</strong> {{ payable.purchase.number }}</div>
+        <div class="info-line"><strong>Date :</strong> {{ payable.payable_date|date:"d/m/Y H:i" }}</div>
+        <div class="info-line"><strong>Statut :</strong> {{ payable.get_status_display }}</div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Montants</div>
+        <div class="info-line"><strong>Total :</strong> {{ payable.amount_total|intcomma }} FC</div>
+        <div class="info-line"><strong>Payé :</strong> {{ payable.amount_paid|intcomma }} FC</div>
+        <div class="info-line"><strong>Reste :</strong> {{ payable.amount_due|intcomma }} FC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Historique des paiements</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Compte</th>
+              <th class="text-end">Montant</th>
+              <th>Référence</th>
+              <th>Créé par</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payment in payable.payments.all %}
+            <tr>
+              <td>{{ payment.paid_at|date:"d/m/Y H:i" }}</td>
+              <td>{{ payment.account_name }}</td>
+              <td class="text-end">{{ payment.amount|intcomma }} FC</td>
+              <td>{{ payment.reference|default:"-" }}</td>
+              <td>{{ payment.created_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">Aucun paiement fournisseur enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

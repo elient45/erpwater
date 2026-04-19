@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Clôtures{% endblock %}
+{% block page_heading %}Clôtures{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Clôtures de période</h1>
+      <p class="text-muted mb-0">Gestion des clôtures journalières, mensuelles et inventaires.</p>
+    </div>
+    <a href="{% url 'reports:period_closure_create' %}" class="btn btn-dark rounded-3">Nouvelle clôture</a>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Périmètre</th>
+            <th>Période</th>
+            <th>Statut</th>
+            <th>Clôturé par</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for closure in closures %}
+          <tr>
+            <td>{{ closure.get_closure_type_display }}</td>
+            <td>{{ closure.get_scope_display }}</td>
+            <td>{{ closure.start_date }} → {{ closure.end_date }}</td>
+            <td>
+              {% if closure.status == "CLOSED" %}
+                <span class="badge rounded-pill text-bg-dark">Clôturée</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-warning">Rouverte</span>
+              {% endif %}
+            </td>
+            <td>{{ closure.closed_by.username }}</td>
+            <td class="text-center">
+              <a href="{% url 'reports:period_closure_detail' closure.pk %}" class="btn btn-sm btn-outline-dark rounded-3">Voir</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">Aucune clôture enregistrée.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+8. Plan de modification recommandé
+Je te propose ce plan en 5 phases.
+
+Phase 1: Sécurisation immédiate
+Objectif: rendre le système moins dangereux sans gros refactor.
+
+Ajouter source_depot sur la facture
+Rendre obligatoire le dépôt à la validation
+Corriger monthly_summary pour utiliser le vrai HT
+Retirer ou renommer les indicateurs de marge douteux
+Interdire suppression de facture validée
+Ajouter annulation de facture avec motif
+Ajouter permissions simples par rôle sur validation/annulation
+Phase 2: Traçabilité et gouvernance
+Objectif: savoir qui a fait quoi.
+
+Réactiver proprement l’audit
+Créer un BusinessEventLog
+Exiger un motif sur les actions sensibles
+Tracer validations, annulations, ajustements, clôtures, réouvertures
+Phase 3: Cycle client propre
+Objectif: sortir du tout-facture.
+
+Introduire SalesOrder
+Lier livraison à commande ou facture selon ton choix
+Ajouter gestion des retours / avoirs
+Clarifier les statuts commerciaux
+Phase 4: Cycle fournisseur propre
+Objectif: gérer les dettes fournisseurs.
+
+Introduire dette fournisseur
+Séparer réception et paiement
+Créer paiement fournisseur
+Ne plus représenter tout achat seulement comme une dépense brute
+Phase 5: Clôtures et fiabilité
+Objectif: fiabiliser le pilotage dans le temps.
+
+Ajouter modèle PeriodClosure
+Bloquer les écritures sur période clôturée
+Ajouter clôture caisse, mensuelle, inventaire
+Ajouter tests métier sur tous les flux critiques
+9. Mon conseil stratégique
+Ne commence pas par tout refondre d’un coup.
+
+Le meilleur ordre, pour moi, est :
+
+dépôt source explicite sur facture
+annulation avec permissions
+audit et journal métier
+correction des rapports
+clôtures
+cycle client étendu
+cycle fournisseur étendu
+Pourquoi ? Parce que les 4 premiers améliorent immédiatement la sécurité métier sans casser ton existant.
+
+Proposition pour la suite
+Je peux maintenant te faire un vrai document de travail opérationnel, avec :
+
+les nouveaux modèles à créer,
+les champs à ajouter,
+les statuts à définir,
+les permissions par rôle,
+les règles métier exactes,
+puis un ordre d’implémentation technique fichier par fichier.
+Si tu veux, au prochain message je te fais ça sous forme de plan complet d’implémentation, bien structuré, prêt à coder.

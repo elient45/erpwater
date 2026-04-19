@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Clôtures{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Une clôture fige les opérations sur la période choisie.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'reports:period_closure_list' %}" class="btn btn-outline-secondary rounded-3">Retour</a>
+        <button type="submit" class="btn btn-dark rounded-3">Clôturer</button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Type de clôture</label>
+                {{ form.closure_type }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Périmètre</label>
+                {{ form.scope }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Date début</label>
+                {{ form.start_date }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Date fin</label>
+                {{ form.end_date }}
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Motif</label>
+                {{ form.reason }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card odoo-side-panel border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Contrôles avant clôture</div>
+            <ul class="mb-0">
+              {% for item in warnings %}
+                <li>{{ item }}</li>
+              {% empty %}
+                <li>Aucun avertissement détecté.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Fournisseurs{% endblock %}
+{% block page_heading %}Achats{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Fournisseurs</h1>
+      <p class="text-muted mb-0">Répertoire des fournisseurs de l’usine.</p>
+    </div>
+    <a href="{% url 'inventory:supplier_create' %}" class="btn btn-dark rounded-3">Nouveau fournisseur</a>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Téléphone</th>
+            <th>Adresse</th>
+            <th>État</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in suppliers %}
+          <tr>
+            <td class="fw-semibold">{{ s.name }}</td>
+            <td>{{ s.phone|default:"-" }}</td>
+            <td>{{ s.address|default:"-" }}</td>
+            <td>
+              {% if s.is_active %}
+                <span class="badge rounded-pill text-bg-success">Actif</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-secondary">Inactif</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-5 text-muted">Aucun fournisseur enregistré.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

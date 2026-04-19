@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+      <div class="text-muted small">Créer ou modifier un dépôt.</div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'inventory:depot_list' %}" class="btn btn-outline-secondary">Retour</a>
+      <button type="submit" class="btn btn-dark">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="row g-4">
+
+    <!-- MAIN -->
+    <div class="col-xl-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <div class="odoo-section-title mb-3">Informations dépôt</div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nom</label>
+              {{ form.name }}
+              {{ form.name.errors }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Localisation</label>
+              {{ form.location }}
+              {{ form.location.errors }}
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-check mt-2">
+                {{ form.is_active }}
+                <label class="form-check-label">Actif</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDE -->
+    <div class="col-xl-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <div class="odoo-section-title mb-3">Conseils</div>
+
+          <ul class="small text-muted mb-0">
+            <li>Créer un dépôt par emplacement réel</li>
+            <li>Ex: Entrepôt principal, Boutique, Stock mobile</li>
+            <li>Désactiver les dépôts inutilisés</li>
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</form>
+
+</div>
+{% endblock %}

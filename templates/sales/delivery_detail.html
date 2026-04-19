@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Détail livraison{% endblock %}
+{% block page_heading %}Livraison{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 no-print">
+    <div>
+      <h1 class="page-title mb-1">Livraison {{ delivery.invoice.number }}</h1>
+      <p class="text-muted mb-0">Consultez le statut, le destinataire et le résumé de la facture livrée.</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'sales:delivery_list' %}" class="btn btn-outline-dark rounded-3">
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      </a>
+      <a href="{% url 'sales:delivery_update' delivery.pk %}" class="btn btn-dark rounded-3">
+        <i class="bi bi-pencil-square me-2"></i>Modifier
+      </a>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body p-4 p-lg-5">
+
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="info-panel h-100">
+            <div class="info-panel-title">Informations principales</div>
+            <div class="info-line"><strong>Facture :</strong> {{ delivery.invoice.number }}</div>
+            <div class="info-line"><strong>Client :</strong> {{ delivery.invoice.customer.name }}</div>
+            <div class="info-line">
+              <strong>Statut :</strong>
+              {% if delivery.status == "PENDING" %}
+                <span class="badge rounded-pill text-bg-secondary">En attente</span>
+              {% elif delivery.status == "IN_TRANSIT" %}
+                <span class="badge rounded-pill text-bg-warning">En cours</span>
+              {% elif delivery.status == "DELIVERED" %}
+                <span class="badge rounded-pill text-bg-success">Livrée</span>
+              {% elif delivery.status == "FAILED" %}
+                <span class="badge rounded-pill text-bg-danger">Échec</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-light">{{ delivery.get_status_display }}</span>
+              {% endif %}
+            </div>
+            <div class="info-line"><strong>Livreur :</strong> {{ delivery.delivered_by.get_full_name|default:delivery.delivered_by.username }}</div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="info-panel h-100">
+            <div class="info-panel-title">Planification</div>
+            <div class="info-line"><strong>Date prévue :</strong> {{ delivery.delivery_date|date:"d/m/Y H:i" }}</div>
+            <div class="info-line"><strong>Date réelle :</strong> {{ delivery.delivered_at|date:"d/m/Y H:i"|default:"-" }}</div>
+            <div class="info-line"><strong>Destinataire :</strong> {{ delivery.recipient_name|default:"-" }}</div>
+            <div class="info-line"><strong>Téléphone :</strong> {{ delivery.recipient_phone|default:"-" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="note-box">
+          <div class="info-panel-title mb-2">Adresse et note</div>
+          <div class="mb-2"><strong>Adresse :</strong> {{ delivery.address|default:"-" }}</div>
+          <div><strong>Note :</strong> {{ delivery.note|default:"-" }}</div>
+        </div>
+      </div>
+
+      <div class="section-title mb-3">Résumé facture</div>
+      <div class="table-responsive">
+        <table class="table invoice-detail-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th class="text-center">Quantité</th>
+              <th class="text-end">Prix unitaire</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in delivery.invoice.items.all %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ item.product.name }}</div>
+                <div class="text-muted small">{{ item.description|default:"-" }}</div>
+              </td>
+              <td class="text-center">{{ item.qty_packs }}</td>
+              <td class="text-end">{{ item.unit_price }} FC</td>
+              <td class="text-end fw-semibold">{{ item.line_total }} FC</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">Aucune ligne de facture.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3" class="text-end">Total facture</th>
+              <th class="text-end">{{ delivery.invoice.total }} FC</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

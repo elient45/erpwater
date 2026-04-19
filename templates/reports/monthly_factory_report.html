@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% block title %}Rapport mensuel usine{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport mensuel usine</h1>
+      <p class="text-muted mb-0">
+        Vue consolidée de la production, des pertes, des ventes, des dépenses et du résultat estimé.
+      </p>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Mois</label>
+          <select name="month" class="form-select">
+            {% for m in month_choices %}
+              <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Année</label>
+          <select name="year" class="form-select">
+            {% for y in year_choices %}
+              <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-dark rounded-3 px-4">Afficher</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Contrôle des données du mois</div>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="summary-mini-card">
+            <div class="summary-mini-label">Productions trouvées</div>
+            <div class="summary-mini-value">{{ debug_counts.productions }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-mini-card">
+            <div class="summary-mini-label">Factures trouvées</div>
+            <div class="summary-mini-value">{{ debug_counts.invoices }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-mini-card">
+            <div class="summary-mini-label">Dépenses trouvées</div>
+            <div class="summary-mini-value">{{ debug_counts.expenses }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-mini-card">
+            <div class="summary-mini-label">Achats trouvés</div>
+            <div class="summary-mini-value">{{ debug_counts.purchases }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-muted small mt-2">
+  Période utilisée :
+  {{ debug_period.start|date:"d/m/Y H:i" }}
+  →
+  {{ debug_period.end|date:"d/m/Y H:i" }}
+</div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Chiffre d'affaires</div>
+          <div class="report-kpi-value">{{ sales_totals.total_sales }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Coût production</div>
+          <div class="report-kpi-value">{{ production_totals.total_cost }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Dépenses</div>
+          <div class="report-kpi-value">{{ total_expenses }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="report-kpi-label">Résultat net estimé</div>
+          <div class="report-kpi-value">{{ net_result_estimated }} FC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Production summary -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Synthèse production</div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Ordres</div>
+                <div class="summary-mini-value">{{ production_totals.production_count }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Prévu</div>
+                <div class="summary-mini-value">{{ production_totals.total_planned }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Produit</div>
+                <div class="summary-mini-value">{{ production_totals.total_actual }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Pertes</div>
+                <div class="summary-mini-value">{{ production_totals.total_loss }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Net stocké</div>
+                <div class="summary-mini-value">{{ production_totals.total_net }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Coût moyen / pack</div>
+                <div class="summary-mini-value">{{ avg_unit_cost|floatformat:2 }} FC</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Synthèse ventes / finances</div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Factures</div>
+                <div class="summary-mini-value">{{ sales_totals.invoice_count }}</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Encaissements</div>
+                <div class="summary-mini-value">{{ sales_totals.total_paid }} FC</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Reste à encaisser</div>
+                <div class="summary-mini-value">{{ total_due }} FC</div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="summary-mini-card">
+                <div class="summary-mini-label">Marge brute estimée</div>
+                <div class="summary-mini-value">{{ gross_margin_estimated }} FC</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Productions -->
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Productions du mois</div>
+
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Produit</th>
+              <th>Dépôt</th>
+              <th class="text-center">Prévu</th>
+              <th class="text-center">Produit</th>
+              <th class="text-center">Pertes</th>
+              <th class="text-center">Net</th>
+              <th class="text-end">Coût total</th>
+              <th class="text-end">Coût / pack</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productions %}
+            <tr>
+              <td class="fw-semibold">{{ p.number }}</td>
+              <td>{{ p.product_name }}</td>
+              <td>{{ p.depot_name }}</td>
+              <td class="text-center">{{ p.planned_qty_packs }}</td>
+              <td class="text-center">{{ p.actual_qty_packs }}</td>
+              <td class="text-center">{{ p.loss_qty_packs }}</td>
+              <td class="text-center">{{ p.net_qty_packs }}</td>
+              <td class="text-end">{{ p.total_production_cost }} FC</td>
+              <td class="text-end">{{ p.unit_production_cost }} FC</td>
+              <td>{{ p.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="10" class="text-center py-5 text-muted">Aucune production pour cette période.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Top clients + factures -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-5">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Top clients du mois</div>
+
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th class="text-center">Factures</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in top_clients %}
+                <tr>
+                  <td class="fw-semibold">{{ c.customer__name }}</td>
+                  <td class="text-center">{{ c.invoice_count }}</td>
+                  <td class="text-end">{{ c.total_amount }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted">Aucune donnée.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-section-title mb-3">Factures du mois</div>
+
+          <div class="table-responsive">
+            <table class="table report-table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Client</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th class="text-end">Total</th>
+                  <th class="text-end">Payé</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                  <td class="fw-semibold">{{ invoice.number }}</td>
+                  <td>{{ invoice.customer.name }}</td>
+                  <td>{{ invoice.issue_date|date:"d/m/Y H:i" }}</td>
+                  <td>{{ invoice.get_status_display }}</td>
+                  <td class="text-end">{{ invoice.total }} FC</td>
+                  <td class="text-end">{{ invoice.paid_amount }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4 text-muted">Aucune facture pour cette période.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dépenses -->
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Dépenses du mois</div>
+
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Catégorie</th>
+              <th>Compte</th>
+              <th>Description</th>
+              <th class="text-end">Montant</th>
+              <th>Créé par</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>{{ e.spent_at|date:"d/m/Y H:i" }}</td>
+              <td>{{ e.category.name }}</td>
+              <td>{{ e.account.name }}</td>
+              <td>{{ e.description|default:"-" }}</td>
+              <td class="text-end">{{ e.amount }} FC</td>
+              <td>{{ e.created_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">Aucune dépense pour cette période.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="4" class="text-end">Total dépenses</th>
+              <th class="text-end">{{ total_expenses }} FC</th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Facture {{ invoice.number }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 16mm 14mm 16mm 14mm;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .top-actions {
+      display: {% if pdf_mode %}none{% else %}flex{% endif %};
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      padding: 9px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      border: 1px solid #111111;
+      cursor: pointer;
+    }
+
+    .btn-dark {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .invoice-card {
+      border: 1px solid #dddddd;
+      border-radius: 14px;
+      padding: 28px 28px 24px;
+    }
+
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 26px;
+    }
+
+    .header-table td {
+      vertical-align: top;
+      padding: 0;
+    }
+
+    .company-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .company-meta {
+      color: #555555;
+      margin-bottom: 2px;
+    }
+
+    .invoice-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-align: right;
+      margin-bottom: 8px;
+    }
+
+    .invoice-number {
+      font-size: 16px;
+      font-weight: 700;
+      text-align: right;
+      margin-bottom: 6px;
+    }
+
+    .header-meta {
+      text-align: right;
+      color: #444444;
+      margin-bottom: 3px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      border: 1px solid #111111;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .client-box {
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+    }
+
+    .box-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666666;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .line {
+      margin-bottom: 4px;
+    }
+
+    .note-box {
+      border: 1px dashed #cccccc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 22px;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .items-table thead th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #666666;
+      background: #fafafa;
+      border-bottom: 1px solid #dcdcdc;
+      padding: 10px 8px;
+    }
+
+    .items-table tbody td {
+      border-bottom: 1px solid #ededed;
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+
+    .items-table tfoot th {
+      padding: 10px 8px;
+      border-top: 1px solid #dcdcdc;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-end {
+      text-align: right;
+    }
+
+    .item-name {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .item-desc {
+      color: #666666;
+      font-size: 11px;
+    }
+
+    .totals-wrap {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .totals-box {
+      width: 320px;
+      margin-left: auto;
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .totals-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .totals-box td,
+    .totals-box th {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ececec;
+    }
+
+    .totals-box tr:last-child td,
+    .totals-box tr:last-child th {
+      border-bottom: none;
+    }
+
+    .grand-total {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .balance-due {
+      font-weight: 700;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      text-align: center;
+      color: #666666;
+      font-size: 11px;
+    }
+
+    @media print {
+      .top-actions {
+        display: none !important;
+      }
+
+      .invoice-card {
+        border: 1px solid #dddddd !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    {% if not pdf_mode %}
+    <div class="top-actions">
+      <button class="btn btn-dark" onclick="window.print()">Imprimer</button>
+      <a class="btn btn-outline" href="{% url 'sales:invoice_pdf_download' invoice.pk %}">Télécharger PDF</a>
+    </div>
+    {% endif %}
+
+    <div class="invoice-card">
+
+      <table class="header-table">
+        <tr>
+          <td style="width: 50%;">
+            <div class="company-name">Water ERP</div>
+            <div class="company-meta">Usine / Gestion commerciale</div>
+            <div class="company-meta">Téléphone : -</div>
+            <div class="company-meta">Adresse : -</div>
+          </td>
+          <td style="width: 50%;">
+            <div class="invoice-title">FACTURE</div>
+            <div class="invoice-number">{{ invoice.number }}</div>
+            <div class="header-meta"><strong>Date :</strong> {{ invoice.issue_date|date:"d/m/Y H:i" }}</div>
+            <div class="header-meta"><strong>Échéance :</strong> {{ invoice.due_date|date:"d/m/Y"|default:"-" }}</div>
+            <div class="header-meta">
+              <strong>Statut :</strong>
+              <span class="status-pill">{{ invoice.get_status_display }}</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <div class="client-box">
+        <div class="box-title">Client</div>
+        <div class="line"><strong>Nom :</strong> {{ invoice.customer.name }}</div>
+        <div class="line"><strong>Téléphone :</strong> {{ invoice.customer.phone|default:"-" }}</div>
+        <div class="line"><strong>Adresse :</strong> {{ invoice.customer.address|default:"-" }}</div>
+        <div class="line"><strong>NIF / RCCM :</strong> {{ invoice.customer.nif_rccm|default:"-" }}</div>
+      </div>
+
+      {% if invoice.note %}
+      <div class="note-box">
+        <div class="box-title">Note</div>
+        <div>{{ invoice.note }}</div>
+      </div>
+      {% endif %}
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th class="text-center">Qté</th>
+            <th class="text-end">Prix unitaire</th>
+            <th class="text-end">Remise</th>
+            <th class="text-end">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in invoice.items.all %}
+          <tr>
+            <td>
+              <div class="item-name">{{ item.product.name }}</div>
+              {% if item.description %}
+                <div class="item-desc">{{ item.description }}</div>
+              {% endif %}
+            </td>
+            <td class="text-center">{{ item.qty_packs }}</td>
+            <td class="text-end">{{ item.unit_price }} FC</td>
+            <td class="text-end">{{ item.discount }} FC</td>
+            <td class="text-end"><strong>{{ item.line_total }} FC</strong></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">Aucune ligne enregistrée.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="totals-wrap">
+  <div class="totals-box">
+    <table>
+      <tr>
+        <td>Sous-total lignes (TTC)</td>
+        <td class="text-end">{{ invoice.subtotal }} FC</td>
+      </tr>
+      <tr>
+        <td>Remise globale</td>
+        <td class="text-end">{{ invoice.discount }} FC</td>
+      </tr>
+      <tr>
+        <td>Total HT </td>
+        <td class="text-end">{{ invoice.total_before_tax }} FC</td>
+      </tr>
+      <tr>
+        <td>TVA incluse ({{ invoice.tax_rate }} %)</td>
+        <td class="text-end">{{ invoice.tax_amount }} FC</td>
+      </tr>
+      <tr>
+        <td class="grand-total">Total facture TTC</td>
+        <td class="text-end grand-total">{{ invoice.total }} FC</td>
+      </tr>
+      <tr>
+        <td>Montant payé</td>
+        <td class="text-end">{{ invoice.paid_amount }} FC</td>
+      </tr>
+      <tr>
+        <td>Reste à payer</td>
+        <td class="text-end balance-due">{{ invoice.balance_due }} FC</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+      <div class="footer-note">
+        Merci pour votre confiance.
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

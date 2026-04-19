@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_heading %}Production{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ usage_formset.management_form }}
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div>
+        <h1 class="odoo-form-title mb-1">{{ title }}</h1>
+        <div class="text-muted small">Saisissez les pertes et le coût final avant l'entrée en stock.</div>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'inventory:production_detail' production.pk %}" class="btn btn-outline-secondary rounded-3 px-4">Retour</a>
+        <button type="submit" class="btn btn-dark rounded-3 px-4">Valider la production</button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-xl-8">
+        <div class="card odoo-sheet border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+
+            <div class="odoo-section mb-4">
+              <div class="odoo-section-title">Quantités</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Quantité produite (packs)</label>
+                  {{ form.actual_qty_packs }}
+                  {{ form.actual_qty_packs.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Pertes (packs)</label>
+                  {{ form.loss_qty_packs }}
+                  {{ form.loss_qty_packs.errors }}
+                </div>
+              </div>
+            </div>
+
+            <div class="odoo-section mb-4">
+              <div class="odoo-section-title">Mode de coût</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Mode</label>
+                  {{ form.cost_mode }}
+                  {{ form.cost_mode.errors }}
+                </div>
+              </div>
+            </div>
+
+            <div class="odoo-section mb-4" id="manual-cost-block">
+              <div class="odoo-section-title">Coût manuel</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Coût total manuel (FC)</label>
+                  {{ form.manual_total_cost }}
+                  {{ form.manual_total_cost.errors }}
+                </div>
+              </div>
+            </div>
+
+            <div class="odoo-section mb-4" id="semi-cost-block">
+              <div class="odoo-section-title">Coût semi-automatique</div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Main-d'œuvre (FC)</label>
+                  {{ form.labor_cost }}
+                  {{ form.labor_cost.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Énergie (FC)</label>
+                  {{ form.energy_cost }}
+                  {{ form.energy_cost.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Emballage complémentaire (FC)</label>
+                  {{ form.packaging_cost }}
+                  {{ form.packaging_cost.errors }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Autres coûts (FC)</label>
+                  {{ form.other_cost }}
+                  {{ form.other_cost.errors }}
+                </div>
+              </div>
+
+              <div class="odoo-section-title mb-3">Intrants utilisés</div>
+
+              <div class="table-responsive">
+                <table class="table inventory-lines-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Intrant</th>
+                      <th>Quantité utilisée</th>
+                      <th>Suppr.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for subform in usage_formset %}
+                    <tr>
+                      <td>
+                        {{ subform.id }}
+                        {{ subform.supply_item }}
+                        {{ subform.supply_item.errors }}
+                      </td>
+                      <td>
+                        {{ subform.qty_units }}
+                        {{ subform.qty_units.errors }}
+                      </td>
+                      <td>
+                        {% if subform.instance.pk %}
+                          {{ subform.DELETE }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="odoo-section">
+              <div class="odoo-section-title">Note</div>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">Note</label>
+                  {{ form.note }}
+                  {{ form.note.errors }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card odoo-side-panel border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="odoo-section-title mb-3">Rappel</div>
+            <ul class="odoo-summary-list mb-0">
+              <li>Mode manuel : saisis directement le coût total estimé.</li>
+              <li>Mode semi-automatique : le total = intrants + autres coûts.</li>
+              <li>Les intrants utilisés seront déduits du stock.</li>
+              <li>Après validation, le stock du produit fini augmente automatiquement.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const costModeField = document.getElementById("id_cost_mode");
+  const manualBlock = document.getElementById("manual-cost-block");
+  const semiBlock = document.getElementById("semi-cost-block");
+
+  function toggleCostBlocks() {
+    if (!costModeField) return;
+
+    const selected = costModeField.value;
+
+    if (selected === "MANUAL") {
+      manualBlock.style.display = "";
+      semiBlock.style.display = "none";
+    } else if (selected === "SEMI") {
+      manualBlock.style.display = "none";
+      semiBlock.style.display = "";
+    } else {
+      manualBlock.style.display = "";
+      semiBlock.style.display = "";
+    }
+  }
+
+  toggleCostBlocks();
+  if (costModeField) {
+    costModeField.addEventListener("change", toggleCostBlocks);
+  }
+});
+</script>
+{% endblock %}

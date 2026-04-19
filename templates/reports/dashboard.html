@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard - Water ERP{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Dashboard Général</h1>
+      <p class="text-muted mb-0">Vue consolidée de toutes les données enregistrées dans l’ERP.</p>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Ventes HT</div>
+          <div class="card-value">{{ sales_totals.total_ht|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">TVA Collectée</div>
+          <div class="card-value">{{ sales_totals.total_tax|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Ventes TTC</div>
+          <div class="card-value text-info">{{ sales_totals.total_ttc|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Encaissements clients</div>
+          <div class="card-value">{{ sales_totals.total_paid|intcomma }} FC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Montants dus clients</div>
+          <div class="card-value" style="color: {% if sales_totals.total_due > 0 %}#dc3545{% else %}#198754{% endif %}">
+            {{ sales_totals.total_due|intcomma }} FC
+          </div>
+          <small class="text-muted d-block mt-2">Créances clients TTC</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Dépenses</div>
+          <div class="card-value">{{ expense_totals.total|intcomma }} FC</div>
+          <small class="text-muted d-block mt-2">Charges hors achats réceptionnés</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Achats réceptionnés</div>
+          <div class="card-value">{{ purchase_totals.total|intcomma }} FC</div>
+          <small class="text-muted d-block mt-2">Valeur cumulée des approvisionnements reçus</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Coûts production</div>
+          <div class="card-value">{{ production_totals.total_cost|intcomma }} FC</div>
+          <small class="text-muted d-block mt-2">Coût de fabrication cumulé</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Paiements fournisseurs</div>
+          <div class="card-value text-danger">{{ supplier_payment_totals.total|intcomma }} FC</div>
+          <small class="text-muted d-block mt-2">Décaissements réels vers les fournisseurs</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Dettes fournisseurs</div>
+          <div class="card-value" style="color: {% if supplier_payable_totals.total_due > 0 %}#dc3545{% else %}#198754{% endif %}">
+            {{ supplier_payable_totals.total_due|intcomma }} FC
+          </div>
+          <small class="text-muted d-block mt-2">Solde restant dû aux fournisseurs</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Stock total</div>
+          <div class="card-value">{{ total_stock_items|intcomma }}</div>
+          <small class="text-muted d-block mt-2">Unités de vente en base</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Coût unitaire moyen prod.</div>
+          <div class="card-value">
+            {% if production_totals.total_net_qty > 0 %}
+              {{ cost_per_unit|floatformat:2 }} FC
+            {% else %}
+              N/A
+            {% endif %}
+          </div>
+          <small class="text-muted d-block mt-2">Coût moyen par pack produit</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Factures</div>
+          <div class="card-value">{{ sales_totals.count }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Productions validées</div>
+          <div class="card-value">{{ production_totals.count }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card dashboard-card">
+        <div class="card-body">
+          <div class="card-label">Produits</div>
+          <div class="card-value">{{ total_products }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="section-title mb-2">Lecture de pilotage</div>
+      <div class="text-muted small">
+        Ce dashboard reprend la même logique que le rapport mensuel, mais sur l’ensemble des données enregistrées.
+        Les montants restent séparés par nature : ventes, encaissements, dépenses, achats, paiements fournisseurs,
+        dettes fournisseurs et production.
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card dashboard-card h-100">
+        <div class="card-body">
+          <div class="section-title mb-3">Produits les plus vendus</div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Quantité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in top_products %}
+                <tr>
+                  <td>{{ item.product__name }}</td>
+                  <td>{{ item.total_qty }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">Aucune donnée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card dashboard-card h-100">
+        <div class="card-body">
+          <div class="section-title mb-3">Produits en stock bas</div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Dépôt</th>
+                  <th>Qté</th>
+                  <th>Min</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for balance in low_stock_products %}
+                <tr>
+                  <td>{{ balance.product.name }}</td>
+                  <td>{{ balance.depot.name }}</td>
+                  <td>{{ balance.qty_packs }}</td>
+                  <td>{{ balance.product.min_stock }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Aucune alerte stock</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card dashboard-card h-100">
+        <div class="card-body">
+          <div class="section-title mb-3">Factures récentes</div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Numéro</th>
+                  <th>Client</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in recent_invoices %}
+                <tr>
+                  <td>{{ invoice.number }}</td>
+                  <td>{{ invoice.customer.name }}</td>
+                  <td>{{ invoice.total|intcomma }} FC</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted">Aucune facture récente</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card dashboard-card h-100">
+        <div class="card-body">
+          <div class="section-title mb-3">Mouvements récents</div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Utilisateur</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for movement in recent_movements %}
+                <tr>
+                  <td>{{ movement.movement_date|date:"d/m/Y H:i" }}</td>
+                  <td>{{ movement.get_movement_type_display|default:movement.movement_type }}</td>
+                  <td>{{ movement.created_by.username }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted">Aucun mouvement récent</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

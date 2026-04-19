@@ -1,0 +1,13 @@
+La validation de facture prend le premier dépôt actif comme source de stock, sans choix métier explicite: sales/services.py (line 96). Pour ce type de logiciel, c’est dangereux, parce qu’une vente devrait sortir d’un dépôt précis, ou d’un stock vendeur, ou d’une tournée.
+  
+
+
+Il y a encore des incohérences de pilotage dans les rapports. Par exemple monthly_summary appelle “HT” une somme sur subtotal, alors que ton vrai HT métier semble être total_before_tax: reports/views.py (line 277). Et la “marge brute” calculée reste comptablement discutable: reports/views.py (line 359).
+
+Un vrai cycle d’approvisionnement: commande fournisseur, réception, dette fournisseur, paiement fournisseur. Aujourd’hui tu as achat + dépense, mais pas vraiment la notion de dette/AP.
+   
+Un vrai cycle client: devis/commande, validation, livraison, facture, recouvrement, éventuellement avoir/retour.
+
+
+tu vois ses  diagnostci ici propose moi une solution soit explicatif explique ta solution tu vois comme  une logique metier explicatives quoi !! parce que on vas implementer ca mais explique moi d'abord !  je crois il faut peut etre un systeme d'annulation de facture mais avec des permissions (role ) pas n'importe qui ! et ca aussi ! Une vraie traçabilité active: qui a modifié quoi, quand, pourquoi.
+Des clôtures de période: journée, mois, inventaire, caisse.     donc fait moi un plan de modification explique moi d'abord puis on fait un plan de modification complet ! quoi !

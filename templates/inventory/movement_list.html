@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Mouvements de stock{% endblock %}
+{% block page_heading %}Stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <!-- HEADER -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Mouvements de stock</h1>
+      <p class="text-muted mb-0">Suivi des entrées, sorties et transferts de stock.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'inventory:movement_create' %}" class="btn btn-dark rounded-3 px-3">
+        <i class="bi bi-plus-lg me-2"></i>Nouveau mouvement
+      </a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3">
+        <div class="text-muted small">Total</div>
+        <div class="fw-bold fs-5">{{ movements|length }}</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 p-3">
+        <div class="text-muted small">Postés</div>
+        <div class="fw-bold fs-5">
+          {{ movements|dictsort:"is_posted"|length }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+
+      <!-- SEARCH (UX futur) -->
+      <div class="d-flex justify-content-between mb-3">
+        <input type="text" class="form-control form-control-sm w-25" placeholder="Rechercher...">
+      </div>
+
+      <div class="table-responsive">
+        <table class="table movement-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Utilisateur</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for movement in movements %}
+            <tr>
+              <td class="fw-semibold">#{{ movement.id }}</td>
+
+              <td>
+                {{ movement.movement_date|date:"d/m/Y H:i" }}
+              </td>
+
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ movement.get_movement_type_display }}
+                </span>
+              </td>
+
+              <td>{{ movement.depot_from|default:"-" }}</td>
+              <td>{{ movement.depot_to|default:"-" }}</td>
+
+              <td>{{ movement.created_by }}</td>
+
+              <td>
+                {% if movement.is_posted %}
+                  <span class="badge bg-success">Validé</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Brouillon</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <a href="{% url 'inventory:movement_detail' movement.pk %}"
+                   class="btn btn-sm btn-outline-dark rounded-2">
+                   Voir
+                </a>
+              </td>
+            </tr>
+
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center text-muted py-5">
+                Aucun mouvement enregistré.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Intrants{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Intrants</h1>
+      <p class="text-muted mb-0">Intrants, emballages et consommables utilisables en achat et en production.</p>
+    </div>
+    <a href="{% url 'inventory:supply_item_create' %}" class="btn btn-dark rounded-3">Nouvel intrant</a>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm">
+    <div class="card-body table-responsive">
+      <table class="table report-table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Nom</th>
+            <th>Type</th>
+            <th>Unité</th>
+            <th class="text-end">Stock</th>
+            <th class="text-end">Dernier coût</th>
+            <th class="text-end">Coût moyen</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in supply_items %}
+          <tr>
+            <td class="fw-semibold">{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.get_item_type_display }}</td>
+            <td>{{ item.get_unit_display }}</td>
+            <td class="text-end">{{ item.current_qty }}</td>
+            <td class="text-end">{{ item.last_unit_cost }} FC</td>
+            <td class="text-end">{{ item.average_unit_cost }} FC</td>
+            <td class="text-center">
+              <a href="{% url 'inventory:supply_item_update' item.pk %}" class="btn btn-sm btn-outline-dark rounded-3">Modifier</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">Aucun intrant enregistré.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

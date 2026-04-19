@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Clôture{% endblock %}
+{% block page_heading %}Clôtures{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">{{ closure.get_closure_type_display }}</h1>
+      <p class="text-muted mb-0">{{ closure.start_date }} → {{ closure.end_date }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'reports:period_closure_list' %}" class="btn btn-outline-dark rounded-3">Retour</a>
+      {% if monthly_summary_url %}
+      <a href="{{ monthly_summary_url }}" class="btn btn-outline-secondary rounded-3">Voir le rapport mensuel</a>
+      {% endif %}
+      {% if can_manage_closures and closure.status == "CLOSED" %}
+      <a href="{% url 'reports:period_closure_reopen' closure.pk %}" class="btn btn-dark rounded-3">Rouvrir</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Informations</div>
+        <div class="info-line"><strong>Type :</strong> {{ closure.get_closure_type_display }}</div>
+        <div class="info-line"><strong>Périmètre :</strong> {{ closure.get_scope_display }}</div>
+        <div class="info-line"><strong>Statut :</strong> {{ closure.get_status_display }}</div>
+        <div class="info-line"><strong>Clôturé par :</strong> {{ closure.closed_by.username }}</div>
+        <div class="info-line"><strong>Clôturé le :</strong> {{ closure.closed_at|date:"d/m/Y H:i" }}</div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="info-panel h-100">
+        <div class="info-panel-title">Traçabilité</div>
+        <div class="info-line"><strong>Motif :</strong> {{ closure.reason }}</div>
+        <div class="info-line"><strong>Rouvert par :</strong> {{ closure.reopened_by.username|default:"-" }}</div>
+        <div class="info-line"><strong>Réouvert le :</strong> {{ closure.reopened_at|date:"d/m/Y H:i"|default:"-" }}</div>
+        <div class="info-line"><strong>Motif réouverture :</strong> {{ closure.reopen_reason|default:"-" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Avertissements métier</div>
+      <ul class="mb-0">
+        {% for item in warnings %}
+          <li>{{ item }}</li>
+        {% empty %}
+          <li>Aucun avertissement.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-4">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Entrées réelles</div>
+          <div class="report-kpi-value text-success">{{ total_real_in|intcomma }} FC</div>
+          <div class="report-kpi-note">Paiements clients + dépôts</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Sorties réelles</div>
+          <div class="report-kpi-value text-danger">{{ total_real_out|intcomma }} FC</div>
+          <div class="report-kpi-note">Dépenses + paiements fournisseurs + retraits</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card page-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Flux net réel</div>
+          <div class="report-kpi-value {% if net_cash_flow >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ net_cash_flow|intcomma }} FC
+          </div>
+          <div class="report-kpi-note">Transferts exclus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Opérations de trésorerie de la période</div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <h6 class="mb-3">Paiements clients</h6>
+          <ul class="list-group list-group-flush">
+            {% for t in customer_payments %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — {{ t.description|default:"Paiement client" }}</span>
+              <strong>{{ t.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucun paiement client.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Paiements fournisseurs</h6>
+          <ul class="list-group list-group-flush">
+            {% for t in supplier_payments %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — {{ t.description|default:"Paiement fournisseur" }}</span>
+              <strong>{{ t.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucun paiement fournisseur.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Dépenses</h6>
+          <ul class="list-group list-group-flush">
+            {% for t in expense_transactions %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — {{ t.description|default:"Dépense" }}</span>
+              <strong>{{ t.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucune dépense.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Dépôts / Retraits</h6>
+          <ul class="list-group list-group-flush">
+            {% for t in deposit_transactions %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — Dépôt</span>
+              <strong class="text-success">+ {{ t.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}{% endfor %}
+            {% for t in withdrawal_transactions %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — Retrait</span>
+              <strong class="text-danger">- {{ t.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}{% endfor %}
+            {% if not deposit_transactions and not withdrawal_transactions %}
+            <li class="list-group-item px-0 text-muted">Aucun dépôt ni retrait.</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h6 class="mb-3">Transferts internes (hors cash réel)</h6>
+        <ul class="list-group list-group-flush">
+          {% for t in transfer_transactions %}
+          <li class="list-group-item px-0 d-flex justify-content-between">
+            <span>{{ t.transaction_date|date:"d/m/Y H:i" }} — {{ t.description|default:"Transfert interne" }}</span>
+            <strong>{{ t.amount|intcomma }} FC</strong>
+          </li>
+          {% empty %}
+          <li class="list-group-item px-0 text-muted">Aucun transfert interne.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Activité de la période</div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <h6 class="mb-3">Factures</h6>
+          <ul class="list-group list-group-flush">
+            {% for invoice in invoices %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ invoice.number }} — {{ invoice.customer.name }}</span>
+              <strong>{{ invoice.total|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucune facture.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Encaissements clients</h6>
+          <ul class="list-group list-group-flush">
+            {% for payment in payments %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ payment.paid_at|date:"d/m/Y H:i" }} — {{ payment.invoice.number }}</span>
+              <strong>{{ payment.amount|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucun encaissement.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Achats</h6>
+          <ul class="list-group list-group-flush">
+            {% for purchase in purchases %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ purchase.number }} — {{ purchase.supplier.name }}</span>
+              <strong>{{ purchase.total|intcomma }} FC</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucun achat.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="mb-3">Productions</h6>
+          <ul class="list-group list-group-flush">
+            {% for production in productions %}
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <span>{{ production.number }} — {{ production.product_name }}</span>
+              <strong>{{ production.net_qty_packs }} packs</strong>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">Aucune production.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h6 class="mb-3">Mouvements de stock</h6>
+        <ul class="list-group list-group-flush">
+          {% for movement in stock_movements %}
+          <li class="list-group-item px-0">
+            {{ movement.movement_date|date:"d/m/Y H:i" }} —
+            {{ movement.get_movement_type_display }} —
+            {{ movement.reason|default:"Sans motif" }}
+          </li>
+          {% empty %}
+          <li class="list-group-item px-0 text-muted">Aucun mouvement de stock.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

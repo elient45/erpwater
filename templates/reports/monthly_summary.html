@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Rapport Mensuel - Water ERP{% endblock %}
+{% block page_heading %}Rapports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">Rapport Mensuel</h1>
+      <p class="text-muted mb-0">Synthese des activites financieres et operationnelles du mois.</p>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="month" class="form-label">Mois</label>
+          <select name="month" id="month" class="form-select">
+            {% for m in month_choices %}
+              <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>
+                {% with m as month_num %}
+                  {% if month_num == 1 %}Janvier
+                  {% elif month_num == 2 %}Fevrier
+                  {% elif month_num == 3 %}Mars
+                  {% elif month_num == 4 %}Avril
+                  {% elif month_num == 5 %}Mai
+                  {% elif month_num == 6 %}Juin
+                  {% elif month_num == 7 %}Juillet
+                  {% elif month_num == 8 %}Aout
+                  {% elif month_num == 9 %}Septembre
+                  {% elif month_num == 10 %}Octobre
+                  {% elif month_num == 11 %}Novembre
+                  {% elif month_num == 12 %}Decembre
+                  {% endif %}
+                {% endwith %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="year" class="form-label">Annee</label>
+          <select name="year" id="year" class="form-select">
+            {% for y in year_choices %}
+              <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-dark rounded-3 px-4">Afficher</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <div class="report-section-title mb-1">Periode analysee</div>
+        <div class="text-muted small">
+          Du {{ start_date|date:"d/m/Y" }} au {{ end_date|date:"d/m/Y" }}
+        </div>
+      </div>
+      <div class="report-period-badge">Rapport consolide</div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Ventes HT</div>
+          <div class="report-kpi-value">{{ sales_totals.total_ht|intcomma }} FC</div>
+          <div class="report-kpi-note">Somme des totaux hors taxes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">TVA Collectee</div>
+          <div class="report-kpi-value">{{ sales_totals.total_tax|intcomma }} FC</div>
+          <div class="report-kpi-note">Taxe sur les ventes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Ventes TTC</div>
+          <div class="report-kpi-value">{{ sales_totals.total_ttc|intcomma }} FC</div>
+          <div class="report-kpi-note">HT + TVA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Encaissements</div>
+          <div class="report-kpi-value">{{ sales_totals.total_paid|intcomma }} FC</div>
+          <div class="report-kpi-note">Paiements recus des clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Montants Dus</div>
+          <div class="report-kpi-value {% if sales_totals.total_due > 0 %}text-danger{% else %}text-success{% endif %}">
+            {{ sales_totals.total_due|intcomma }} FC
+          </div>
+          <div class="report-kpi-note">Creances clients TTC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Depenses</div>
+          <div class="report-kpi-value">{{ expense_totals.total|intcomma }} FC</div>
+          <div class="report-kpi-note">Charges hors achats receptionnes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Achats Receptionnes</div>
+          <div class="report-kpi-value">{{ purchase_totals.total|intcomma }} FC</div>
+          <div class="report-kpi-note">Valeur des approvisionnements recus</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Couts Production</div>
+          <div class="report-kpi-value">{{ production_totals.total_cost|intcomma }} FC</div>
+          <div class="report-kpi-note">Cout de fabrication du mois</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Paiements fournisseurs</div>
+          <div class="report-kpi-value text-danger">{{ supplier_payment_totals.total|intcomma }} FC</div>
+          <div class="report-kpi-note">Décaissements réels vers les fournisseurs sur le mois</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card report-kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="report-kpi-label">Dettes fournisseurs restantes</div>
+          <div class="report-kpi-value {% if supplier_payable_totals.total_due > 0 %}text-danger{% else %}text-success{% endif %}">
+            {{ supplier_payable_totals.total_due|intcomma }} FC
+          </div>
+          <div class="report-kpi-note">Solde restant dû sur l’ensemble des dettes fournisseurs actives</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-2">Lecture de pilotage</div>
+      <div class="text-muted small">
+        Ce rapport montre des volumes et des montants fiables par nature d'activite. Il ne calcule pas de marge brute simplifiee,
+        car une vraie rentabilite doit s'appuyer sur les ventes HT et sur un cout de revient fiable.
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Ventes ({{ sales_totals.count }} factures)</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Facture</th>
+              <th>Client</th>
+              <th class="text-end">HT</th>
+              <th class="text-end">TTC</th>
+              <th class="text-end">Paye</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in invoices %}
+            <tr>
+              <td>
+                <a href="{% url 'sales:invoice_detail' invoice.id %}" class="text-decoration-none fw-semibold text-dark">
+                  {{ invoice.number }}
+                </a>
+              </td>
+              <td>{{ invoice.customer.name }}</td>
+              <td class="text-end">{{ invoice.total_before_tax|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.total|intcomma }} FC</td>
+              <td class="text-end">{{ invoice.paid_amount|intcomma }} FC</td>
+              <td>
+                {% if invoice.status == "PAID" %}
+                  <span class="badge rounded-pill text-bg-success">Payee</span>
+                {% elif invoice.status == "PARTIAL" %}
+                  <span class="badge rounded-pill text-bg-warning">Partiel</span>
+                {% elif invoice.status == "VALIDATED" %}
+                  <span class="badge rounded-pill text-bg-primary">Validee</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-secondary">{{ invoice.get_status_display }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">Aucune facture ce mois-ci</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Depenses ({{ expense_totals.count }})</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th class="text-end">Montant</th>
+              <th>Categorie</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expense in expenses %}
+            <tr>
+              <td>{{ expense.spent_at|date:"d/m/Y" }}</td>
+              <td>{{ expense.description|truncatechars:40 }}</td>
+              <td class="text-end">{{ expense.amount|intcomma }} FC</td>
+              <td>{{ expense.category.name }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">Aucune depense ce mois-ci</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Productions ({{ production_totals.count }})</div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="summary-mini-card h-100">
+            <div class="summary-mini-label">Quantite fabriquee</div>
+            <div class="summary-mini-value">{{ production_totals.total_net_qty }} packs</div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="summary-mini-card h-100">
+            <div class="summary-mini-label">Cout total</div>
+            <div class="summary-mini-value">{{ production_totals.total_cost|intcomma }} FC</div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="summary-mini-card h-100">
+            <div class="summary-mini-label">Cout unitaire</div>
+            <div class="summary-mini-value">
+              {% if production_totals.total_net_qty > 0 %}
+                {{ cost_per_unit|floatformat:2 }} FC
+              {% else %}
+                N/A
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Produit</th>
+              <th class="text-end">Quantite</th>
+              <th class="text-end">Cout</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prod in productions %}
+            <tr>
+              <td>{{ prod.production_date|date:"d/m/Y" }}</td>
+              <td>{{ prod.product_name }}</td>
+              <td class="text-end">{{ prod.net_qty_packs }} packs</td>
+              <td class="text-end">{{ prod.total_production_cost|intcomma }} FC</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">Aucune production ce mois-ci</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Achats ({{ purchase_totals.count }})</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Fournisseur</th>
+              <th class="text-end">Total</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for purchase in purchases %}
+            <tr>
+              <td>{{ purchase.ordered_at|date:"d/m/Y" }}</td>
+              <td>{{ purchase.supplier.name }}</td>
+              <td class="text-end">{{ purchase.total|intcomma }} FC</td>
+              <td><span class="badge rounded-pill text-bg-success">{{ purchase.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">Aucun achat ce mois-ci</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Mouvements de stock recents</div>
+      <div class="table-responsive">
+        <table class="table report-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for movement in stock_movements %}
+            <tr>
+              <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+              <td>{{ movement.get_movement_type_display }}</td>
+              <td>{{ movement.depot_from.name|default:"-" }}</td>
+              <td>{{ movement.depot_to.name|default:"-" }}</td>
+              <td>{{ movement.reason|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">Aucun mouvement de stock sur la periode</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card page-card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="report-section-title mb-3">Guide d'interpretation</div>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="interpretation-box h-100">
+            <div class="interpretation-title">Ventes</div>
+            <ul class="mb-0">
+              <li><strong>HT</strong> = Montant hors taxes</li>
+              <li><strong>TVA</strong> = Taxe collectee</li>
+              <li><strong>TTC</strong> = Total facture</li>
+              <li><strong>Paye</strong> = Argent encaisse</li>
+              <li><strong>Du</strong> = Creances clients</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="interpretation-box h-100">
+            <div class="interpretation-title">Fournisseurs et charges</div>
+            <ul class="mb-2">
+              <li><strong>Depenses</strong> = Charges diverses du mois</li>
+              <li><strong>Achats</strong> = Approvisionnements receptionnes</li>
+              <li><strong>Paiements fournisseurs</strong> = Sorties reelles vers les fournisseurs</li>
+              <li><strong>Dettes fournisseurs</strong> = Solde restant du aux fournisseurs</li>
+            </ul>
+            <div class="small text-muted">
+              Ces indicateurs restent séparés pour éviter tout mélange artificiel entre charges, dettes et décaissements.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.report-period-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #e9ecef;
+  border-radius: 999px;
+  background: #f8f9fa;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.report-kpi-note {
+  font-size: 0.78rem;
+  color: #6c757d;
+  margin-top: 0.35rem;
+}
+
+.summary-mini-card {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.summary-mini-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  margin-bottom: 0.35rem;
+}
+
+.summary-mini-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #212529;
+}
+
+.interpretation-box {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+}
+
+.interpretation-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.75rem;
+}
+
+.interpretation-box ul {
+  padding-left: 1.1rem;
+}
+
+.interpretation-box li {
+  margin-bottom: 0.35rem;
+  color: #495057;
+}
+</style>
+
+{% endblock %}
