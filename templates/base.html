@@ -812,7 +812,7 @@
           <nav class="nav flex-column mb-2">
             <a class="nav-link {% if request.path == reports_dashboard_url %}active{% endif %}" href="{{ reports_dashboard_url }}">
               <i class="bi bi-grid-1x2"></i>
-              <span>Dashboard</span>
+              <span>Tableau de Bord</span>
             </a>
             <a class="nav-link {% if request.path == reports_monthly_summary_url %}active{% endif %}" href="{{ reports_monthly_summary_url }}">
               <i class="bi bi-calendar-event"></i>
@@ -845,18 +845,18 @@
 
           <div class="sidebar-section-title">Achats</div>
           <nav class="nav flex-column mb-2">
-           <li class="nav-item">
-  <a class="nav-link" href="{% url 'inventory:supplier_list' %}">Fournisseurs</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'inventory:purchase_list' %}">Achats</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'inventory:supplier_payable_list' %}">Dettes fournisseurs</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'inventory:supply_item_list' %}">Matière Première</a>
-</li>
+             <li class="nav-item">
+              <a class="nav-link" href="{% url 'inventory:supplier_list' %}">Fournisseurs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'inventory:purchase_list' %}">Achats</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'inventory:supplier_payable_list' %}">Dettes fournisseurs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'inventory:supply_item_list' %}">Matière Première</a>
+            </li>
           </nav>
 
           <div class="sidebar-section-title">Ventes</div>
